@@ -75,7 +75,7 @@ class appDemo:
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
         self.TextDebug = tk.Text(self.root)
-        self.TextDebug.place(relx=0.05, rely=0.744, relheight=0.111, relwidth=0.877)
+        self.TextDebug.place(relx=0.05, rely=0.744, relheight=0.2, relwidth=0.877)
         self.TextDebug.configure(background="lightgrey")
         self.TextDebug.configure(font="TkTextFont")
         self.TextDebug.configure(selectbackground="#c4c4c4")
@@ -84,10 +84,8 @@ class appDemo:
         self.TextDebug.insert(tk.END, "\n")
 
         self.Label1 = tk.Label(self.root)
-        self.Label1.place(relx=0.0, rely=0.65, height=21, width=200)
+        self.Label1.place(relx=0.0, rely=0.7, height=21, width=200)
         self.Label1.configure(text="- - - - - ")
-#        self.Label1.configure(text="Mon adresse : " + self.IP)
-#        self.Label1.configure(justify='left')
         self.Label1.configure(justify='left')
         self.Label1.configure(font=("Courrier New", 20))
         self.Label1.bind("<Button-1>", self.Label1Click) #JDS
@@ -147,7 +145,30 @@ class appDemo:
         self.lblHumInterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
         self.lblHumInterneAlm.place(relx=0.91, rely=0.40)
 
-        
+        self.lblHumInterneMin = tk.Label(self.root, anchor="w")
+        self.lblHumInterneMin.place(relx=0.42, rely=0.4, height=23, width=200)
+        self.lblHumInterneMin.configure(text="---")
+        self.lblHumInterneMin.configure(justify='left')
+        self.lblHumInterneMin.configure(font=("Courrier New", 20))
+
+        self.lblHumInterneMax = tk.Label(self.root, anchor="w")
+        self.lblHumInterneMax.place(relx=0.52, rely=0.4, height=23, width=200)
+        self.lblHumInterneMax.configure(text="---")
+        self.lblHumInterneMax.configure(justify='left')
+        self.lblHumInterneMax.configure(font=("Courrier New", 20))
+
+        self.txtHumInterneAlmMin = tk.Entry(self.root, bg="lightgrey")
+        self.txtHumInterneAlmMin.place(relx=0.62, rely=0.4, height=27, width=80)
+        self.txtHumInterneAlmMin.insert(0, "0")
+        self.txtHumInterneAlmMin.configure(justify='left')
+        self.txtHumInterneAlmMin.configure(font=("Courrier New", 20))
+
+        self.txtHumInterneAlmMax = tk.Entry(self.root, bg="lightgrey")
+        self.txtHumInterneAlmMax.place(relx=0.73, rely=0.4, height=27, width=80)
+        self.txtHumInterneAlmMax.insert(0, "100")
+        self.txtHumInterneAlmMax.configure(justify='left')
+        self.txtHumInterneAlmMax.configure(font=("Courrier New", 20))
+
         self.lblTempInterne = tk.Label(self.root, anchor="w")
         self.lblTempInterne.place(relx=0.05, rely=0.35, height=23, width=340)
         self.lblTempInterne.configure(text="Température Intérieure : ")
@@ -161,6 +182,7 @@ class appDemo:
         self.lblTempInterneVal.configure(text="---")
         self.lblTempInterneVal.configure(justify='left')
         self.lblTempInterneVal.configure(font=("Courrier New", 20))
+
         self.lblTempInterneMin = tk.Label(self.root, anchor="w")
         self.lblTempInterneMin.place(relx=0.42, rely=0.35, height=23, width=200)
         self.lblTempInterneMin.configure(text="---")
@@ -173,6 +195,18 @@ class appDemo:
         self.lblTempInterneMax.configure(justify='left')
         self.lblTempInterneMax.configure(font=("Courrier New", 20))
         print("5-")
+
+        self.txtTempInterneAlmMin = tk.Entry(self.root, bg="lightgrey")
+        self.txtTempInterneAlmMin.place(relx=0.62, rely=0.35, height=27, width=80)
+        self.txtTempInterneAlmMin.insert(0, "0")
+        self.txtTempInterneAlmMin.configure(justify='left')
+        self.txtTempInterneAlmMin.configure(font=("Courrier New", 20))
+
+        self.txtTempInterneAlmMax = tk.Entry(self.root, bg="lightgrey")
+        self.txtTempInterneAlmMax.place(relx=0.73, rely=0.35, height=27, width=80)
+        self.txtTempInterneAlmMax.insert(0, "100")
+        self.txtTempInterneAlmMax.configure(justify='left')
+        self.txtTempInterneAlmMax.configure(font=("Courrier New", 20))
 
         self.lblTempInterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
         self.lblTempInterneAlm.place(relx=0.91, rely=0.35)
@@ -189,7 +223,32 @@ class appDemo:
         self.lblHumExterneVal.configure(text="---")
         self.lblHumExterneVal.configure(justify='left')
         self.lblHumExterneVal.configure(font=("Courrier New", 20))
+
+        self.lblHumExterneMin = tk.Label(self.root, anchor="w")
+        self.lblHumExterneMin.place(relx=0.42, rely=0.5, height=23, width=200)
+        self.lblHumExterneMin.configure(text="---")
+        self.lblHumExterneMin.configure(justify='left')
+        self.lblHumExterneMin.configure(font=("Courrier New", 20))
+
+        self.lblHumExterneMax = tk.Label(self.root, anchor="w")
+        self.lblHumExterneMax.place(relx=0.52, rely=0.5, height=23, width=200)
+        self.lblHumExterneMax.configure(text="---")
+        self.lblHumExterneMax.configure(justify='left')
+        self.lblHumExterneMax.configure(font=("Courrier New", 20))
+
         print("7-")
+
+        self.txtTempExterneAlmMin = tk.Entry(self.root, bg="lightgrey")
+        self.txtTempExterneAlmMin.place(relx=0.62, rely=0.5, height=27, width=80)
+        self.txtTempExterneAlmMin.insert(0, "0")
+        self.txtTempExterneAlmMin.configure(justify='left')
+        self.txtTempExterneAlmMin.configure(font=("Courrier New", 20))
+
+        self.txtTempExterneAlmMax = tk.Entry(self.root, bg="lightgrey")
+        self.txtTempExterneAlmMax.place(relx=0.73, rely=0.5, height=27, width=80)
+        self.txtTempExterneAlmMax.insert(0, "100")
+        self.txtTempExterneAlmMax.configure(justify='left')
+        self.txtTempExterneAlmMax.configure(font=("Courrier New", 20))
 
         self.lblHumExterneAlm = tk.Label(self.root, image=self.almRouge, width=20, height=20)
         self.lblHumExterneAlm.place(relx=0.91, rely=0.5)
@@ -209,13 +268,34 @@ class appDemo:
         self.lblTempExterneVal.configure(font=("Courrier New", 20))
 #        self.lblTempExterne.bind("<Button-1>", self.Label1Click) #JDS
 
+        self.lblTempExterneMin = tk.Label(self.root, anchor="w")
+        self.lblTempExterneMin.place(relx=0.42, rely=0.45, height=23, width=200)
+        self.lblTempExterneMin.configure(text="---")
+        self.lblTempExterneMin.configure(justify='left')
+        self.lblTempExterneMin.configure(font=("Courrier New", 20))
+
+        self.lblTempExterneMax = tk.Label(self.root, anchor="w")
+        self.lblTempExterneMax.place(relx=0.52, rely=0.45, height=23, width=200)
+        self.lblTempExterneMax.configure(text="---")
+        self.lblTempExterneMax.configure(justify='left')
+        self.lblTempExterneMax.configure(font=("Courrier New", 20))
+
+        self.txtTempExterneAlmMin = tk.Entry(self.root, bg="lightgrey")
+        self.txtTempExterneAlmMin.place(relx=0.62, rely=0.45, height=27, width=80)
+        self.txtTempExterneAlmMin.insert(0, "0")
+        self.txtTempExterneAlmMin.configure(justify='left')
+        self.txtTempExterneAlmMin.configure(font=("Courrier New", 20))
+
+        self.txtTempExterneAlmMax = tk.Entry(self.root, bg="lightgrey")
+        self.txtTempExterneAlmMax.place(relx=0.73, rely=0.45, height=27, width=80)
+        self.txtTempExterneAlmMax.insert(0, "100")
+        self.txtTempExterneAlmMax.configure(justify='left')
+        self.txtTempExterneAlmMax.configure(font=("Courrier New", 20))
 
         self.lblTempExterneAlm = tk.Label(self.root, image=self.almRouge, width=20, height=20)
         self.lblTempExterneAlm.place(relx=0.91, rely=0.45)
 
         print("9-")
-
-        
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
@@ -226,14 +306,14 @@ class appDemo:
         finally:
             s.close()
 
-        self.ButtonTerminate = tk.Button(self.root)
-        self.ButtonTerminate.place(relx=0.80, rely=0.90, height=62, width=150)
-        self.ButtonTerminate.bind("<Button-1>", self.buttonLogoClick)
-        self.ButtonTerminate.configure(activebackground="#c4c4c4")
-        self.ButtonTerminate.configure(activeforeground="black")
-        self.ButtonTerminate.configure(text='''Fermer''')
-        self.ButtonTerminate.configure(background="#888888")
-        self.ButtonTerminate.configure(font=("Courrier New", 20))
+        #self.ButtonTerminate = tk.Button(self.root)
+        #self.ButtonTerminate.place(relx=0.80, rely=0.90, height=62, width=150)
+        #self.ButtonTerminate.bind("<Button-1>", self.buttonLogoClick)
+        #self.ButtonTerminate.configure(activebackground="#c4c4c4")
+        #self.ButtonTerminate.configure(activeforeground="black")
+        #self.ButtonTerminate.configure(text='''Fermer''')
+        #self.ButtonTerminate.configure(background="#888888")
+        #self.ButtonTerminate.configure(font=("Courrier New", 20))
 
 
     def buttonLogoClick(self, event):
@@ -251,6 +331,9 @@ class appDemo:
     def addHumiditySHT(self, data):
 
         self.lblHumInterneVal.configure(text=str(data))
+        limites = self.findMiniMax("Hum_SHT")
+        self.lblHumInterneMin.configure(text=str(limites[0]))
+        self.lblHumInterneMax.configure(text=str(limites[1]))
 
     def addData(self, type, data):
 
