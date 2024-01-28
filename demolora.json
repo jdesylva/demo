@@ -1,0 +1,9 @@
+{
+    "nom_client":"demolora20240127",
+    "adresse_serveur":"192.168.50.200",
+    "port_tcp_serveur":1883,
+    "keepalive":1000,
+    "appeui":"b750d774-16b6-4fe8-8eb0-21ea91ff3481",
+    "eui_client_RFM95":"212781276c01f3f0",
+    "eui_client_LHT65":"a840411261881bc6"
+}
