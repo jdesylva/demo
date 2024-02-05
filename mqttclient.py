@@ -128,14 +128,27 @@ class mqttclient:
 
         try :  # On décode le message du LHT65N
             objet_code = message_json["object"]
+            deviceInfo = message_json["deviceInfo"]
+            
             print("objet: ")
             print(objet_code)
+            print("deviceInfo: ")
+            print(deviceInfo)
+            
             print("TempC_SHT: ")
             print(objet_code["TempC_SHT"])
             print("Hum_SHT: ")
             print(objet_code["Hum_SHT"])
-            sad.qGui.put("{\"TempC_SHT\":" + objet_code["TempC_SHT"] + "}")
-            sad.qGui.put("{\"Hum_SHT\":" + objet_code["Hum_SHT"] + "}")
+            print("devEUI: ")
+            print(deviceInfo["devEui"])
+            #sad.qGui.put("{\"TempC_SHT\":" + objet_code["TempC_SHT"] + "}")
+            #sad.qGui.put("{\"Hum_SHT\":" + objet_code["Hum_SHT"] + "}")
+            #strData = "{\"devEui\":" + objet_code["devEui"] + ", \"devEui\":" + deviceInfo["devEui"] + ", \"Hum_SHT\":" + objet_code["Hum_SHT"] + "}"
+            strData = "{\"devEui\":\"" + deviceInfo["devEui"] + "\", \"TempC_SHT\":" + objet_code["TempC_SHT"] + ", \"Hum_SHT\":" + objet_code["Hum_SHT"] + "}"
+            #sad.qGui.put("{\"devEui\":" + objet_code["devEui"] + "}")
+            #sad.qGui.put("{\"TempC_SHT\":" + objet_code["TempC_SHT"] + "}")
+            #sad.qGui.put("{\"Hum_SHT\":" + objet_code["Hum_SHT"] + "}")
+            sad.qGui.put(strData)
 
             named_tuple = time.localtime() # get struct_time
             time_string = time.strftime("%Y%m%d", named_tuple)

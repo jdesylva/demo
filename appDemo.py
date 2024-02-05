@@ -3,26 +3,14 @@ import time, sys
 import json, csv
 import pandas as pd
 
-try:
-    import Tkinter as tk
-    print("import Tkinter as tk")
-except ImportError:
-    import tkinter as tk
-    import tkinter.messagebox as messagebox
-    print("import tkinter as tk")
-
-try:
-    import ttk
-    py3 = False
-except ImportError:
-    import tkinter.ttk as ttk
-    py3 = True
+import tkinter as tk
+import tkinter.messagebox as messagebox
 
 from tkinter import simpledialog 
 
 import supportAppDemo as sad
 import mqttclient
-    
+
 class appDemo:
 
     root = None
@@ -59,7 +47,6 @@ class appDemo:
 
             self.almRouge = tk.PhotoImage(file="almRouge.png")
             self.almVerte = tk.PhotoImage(file="almVerte.png")
-            #self.photo = tk.PhotoImage(file="cl-logo_joliette_33.png")
             self.photo = tk.PhotoImage(file="logodemo_t.png")
 
 
@@ -75,26 +62,20 @@ class appDemo:
             print("Erreur : ", excpt)
             sys.exit()
 
-        #self.Header = tk.Label(self.root, image=self.photo, width=1145, height=335)
         self.Header = tk.Label(self.root, image=self.photo, width=1184, height=164)
-        #self.Header = tk.Label(self.root, image=self.photo, width=572, height=167)
-        #self.Header = tk.Label(self.root, image=self.photo, width=382, height=112)
-        #self.Header = tk.Label(self.root, text="Test")
         self.Header.place(relx=0.0, rely=0.03)
         self.Header.bind("<Button-1>", self.buttonLogoClick)
-        #self.Header.place(relx=0.05, rely=0.05, relheight=0.2, relwidth=0.95)
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
-        named_tuple = time.localtime() # get struct_time
-        time_string = time.strftime("%Y%m%d", named_tuple)
+        heure = time.localtime() # get struct_time
+        time_string = time.strftime("%Y%m%d %H:%M", heure)
 
         self.lblDate = tk.Label(self.root, anchor="w")
         self.lblDate.place(relx=0.05, rely=0.3, height=27, width=225)
         self.lblDate.configure(text=time_string)
         self.lblDate.configure(justify='left')
-        self.lblDate.configure(font=("Courrier New", 20, "bold"))
-        #self.lblDate.bind("<Button-1>", self.buttonAdresse)
+        self.lblDate.configure(font=("Courrier New", 12))
 
         self.lblAdresseIP = tk.Label(self.root, anchor="w")
         self.lblAdresseIP.place(relx=0.05, rely=0.95, height=23, width=225)
@@ -210,7 +191,6 @@ class appDemo:
         self.lblTempInterne.configure(text="Température Intérieure : ")
         self.lblTempInterne.configure(justify='left')
         self.lblTempInterne.configure(font=("Courrier New", 20))
-#        self.lblTempInterne.bind("<Button-1>", self.Label1Click) #JDS
         print("4-")
 
         self.lblTempInterneVal = tk.Label(self.root, anchor="w")
@@ -294,7 +274,7 @@ class appDemo:
         self.lblTempExterne.configure(text="Température Extérieure : ")
         self.lblTempExterne.configure(justify='left')
         self.lblTempExterne.configure(font=("Courrier New", 20))
-#        self.lblTempExterne.bind("<Button-1>", self.Label1Click) #JDS
+
         print("8-")
 
         self.lblTempExterneVal = tk.Label(self.root, anchor="w")
@@ -302,7 +282,6 @@ class appDemo:
         self.lblTempExterneVal.configure(text="---")
         self.lblTempExterneVal.configure(justify='left')
         self.lblTempExterneVal.configure(font=("Courrier New", 20))
-#        self.lblTempExterne.bind("<Button-1>", self.Label1Click) #JDS
 
         self.lblTempExterneMin = tk.Label(self.root, anchor="w")
         self.lblTempExterneMin.place(relx=0.42, rely=0.5, height=23, width=200)
@@ -342,15 +321,6 @@ class appDemo:
         finally:
             s.close()
 
-        #self.ButtonTerminate = tk.Button(self.root)
-        #self.ButtonTerminate.place(relx=0.80, rely=0.90, height=62, width=150)
-        #self.ButtonTerminate.bind("<Button-1>", self.buttonLogoClick)
-        #self.ButtonTerminate.configure(activebackground="#c4c4c4")
-        #self.ButtonTerminate.configure(activeforeground="black")
-        #self.ButtonTerminate.configure(text='''Fermer''')
-        #self.ButtonTerminate.configure(background="#888888")
-        #self.ButtonTerminate.configure(font=("Courrier New", 20))
-
     def buttonLogoClick(self, event):
 
         self.on_closing()
@@ -386,7 +356,6 @@ class appDemo:
             # Relier notre client à l'interface MQTT du serveur ChirpStack.
             # On passe en paramètre le nom du fichier de configuration json.
             self.mqtt_client = mqttclient.mqttclient("demolora.json")
-            #self.mqtt_client.connect(adresseIP, self.port)
 
             self.lblPortTCP.configure(text=str(self.port), fg='black')
             # On mémorise la nouvelle adresse (debug)
@@ -413,41 +382,20 @@ class appDemo:
 
         print(self.port)
 
-    def buttonConnect(self, event):
+    def updateTime(self):
+        heure = time.localtime() # get struct_time
+        time_string = time.strftime("%Y%m%d %H:%M", heure)
 
-        adresseIP=simpledialog.askstring("Entrée", "Donner l'adresse IP du serveur", parent=self.root)
-        print(adresseIP)
-        self.lblAdresseIP.configure(text="Serveur : " + str(adresseIP))
-
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        IP = ('localhost', 1)
-
-        tmout = s.gettimeout()
-
-        print('Timeout == ' + str(tmout))
+        self.lblDate.configure(text=time_string)
         
-        try:
-            s.settimeout(1.0)
-            s.connect((adresseIP, 1883))
-            
-            #IP = s.getsockname()
-            #IP = s.getpeername()
-        except:
-            IP = ('127.0.0.1', 1)
-        finally:
-            s.settimeout(tmout)
-            s.close()
-
-        print(IP)
-
     def addTemperatureSHT(self, data):
 
         self.lblTempInterneVal.configure(text=str(data))
         limites = self.findMiniMax("TempC_SHT")
         self.lblTempInterneMin.configure(text=str(limites[0]))
         self.lblTempInterneMax.configure(text=str(limites[1]))
-
+        self.updateTime()
+        
     def addHumiditySHT(self, data):
 
         self.lblHumInterneVal.configure(text=str(data))
@@ -473,10 +421,13 @@ class appDemo:
                 print("Message reçu = " + str(sad.message_recu))
                 while(not sad.qGui.empty()):
                     data = sad.qGui.get()
+                    print(str(data))
                     data_json = json.loads(data)
                     print("data_json = ")
                     print(data_json)
                     
+                    if "devEui" in str(data) :
+                        print("" + str(data_json["devEui"]))
                     if "TempC_SHT" in str(data) :
                         self.addTemperatureSHT(data_json["TempC_SHT"])
                     if "Hum_SHT" in str(data) :
