@@ -39,7 +39,7 @@ class appDemo:
         self.root.resizable(False, False)
         #root.attributes('-fullscreen',True)
         self.root.title("Cégep Joliette Télécom@" + str(socket.gethostname()))
-        self.root.wm_attributes('-alpha', 0.85)
+        self.root.wm_attributes('-alpha', 0.5)
         #self.root.overrideredirect(True)  # Remove window borders
         #self.root.wait_visibility(self.root)
 

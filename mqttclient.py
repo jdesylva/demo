@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import time, csv, json
+import time, sys, csv, json
 import socket
 import paho.mqtt.client as mqtt
 import supportAppDemo as sad
@@ -16,22 +16,27 @@ import supportAppDemo as sad
 class mqttclient:
 
     parametres = None
+    eui_client = list()
 
     def __init__(self, confFile="demolora.json"):
         """
-        Fonction appelée lors de la contruction de l'objet mqttclient.
+        Fonction appelée lors de la contruction de l'objet mqttclient. On utilise le 
+        fichier "demolora.json" pour configurer les capteurs affichés dans 
+        l'interface utilisateur de l'application.
         """
 
         # On lit le fichier json de configuration
         try:
             with open(confFile, 'r') as file:
+                # On récupère le contenu du fichier dans l'objet JSON "parametres"
                 self.parametres = json.load(file)
+                #print(str(self.parametres))
 
-            self.nom = self.parametres['nom_client']
+            self.nom = self.parametres['nom_client_mqtt']
             print(self.nom)
-            self.adresse = self.parametres['adresse_serveur']
+            self.adresse = self.parametres['adresse_serveur_mqtt']
             print(self.adresse)
-            self.port = self.parametres['port_tcp_serveur']
+            self.port = self.parametres['port_tcp_serveur_mqtt']
             print(self.port)
             self.keepalive = self.parametres['keepalive']
             print(self.keepalive)
@@ -40,16 +45,13 @@ class mqttclient:
             self.appeui = self.parametres['appeui']
 
             # Informations sur nos objets
-            self.eui_client_RFM95   = self.parametres['eui_client_RFM95']
-            self.eui_client_LHT65   = self.parametres['eui_client_LHT65']
-        
-            # Données pour communiquer avec l'interface MQTT
-            self.topic_client_RFM95   = f"application/{self.appeui}/device/{self.eui_client_RFM95}/event/up"
-            #TOPIC_CLIENT_RFM95   = "bidon/#"
-            self.topic_client_LHT65   = f"application/{self.appeui}/device/{self.eui_client_LHT65}/event/up"
-            print(self.topic_client_RFM95)
-            print(self.topic_client_LHT65)
-
+            for client in self.parametres['eui_clients'] :
+                client['topic']=f"application/{self.appeui}/device/{client['eui']}/event/up"
+                print("==>" + str(client))
+                self.eui_client.append(client)
+                
+            print("Liste ==>" + str(self.eui_client))
+            
         except Exception as excpt:
             print("Erreur lors de la lecture du fichier de configuration \"" + confFile)
             print("Fin prématurée du programme.")
@@ -93,8 +95,9 @@ class mqttclient:
         while not self.my_client.is_connected():
             time.sleep(.1)
             
-        self.my_client.subscribe(self.topic_client_RFM95)
-        self.my_client.subscribe(self.topic_client_LHT65)
+        for client in self.parametres['eui_clients'] :
+            print("Thème ==>" + str(client['topic']))
+            self.my_client.subscribe(client['topic'])
         
         print("MQTT client connected.")
         

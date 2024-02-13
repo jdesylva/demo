@@ -10,7 +10,7 @@ import mqttclient
 sad.set_queue()
 
 # Relier notre client à l'interface MQTT de notre serveur ChirpStack
-mqtt_client = mqttclient.mqttclient("demolora.json")
+mqtt_client = mqttclient.mqttclient("demolora1.json")
 mqtt_client.connect()
 
 # Créer et démarrer l'application graphique
