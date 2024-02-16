@@ -34,8 +34,8 @@ class mqttclient:
 
             self.nom = self.parametres['nom_client_mqtt']
             print(self.nom)
-            self.adresse = self.parametres['adresse_serveur_mqtt']
-            print(self.adresse)
+            self.adresse_serveur_mqtt = self.parametres['adresse_serveur_mqtt']
+            print(self.adresse_serveur_mqtt)
             self.port = self.parametres['port_tcp_serveur_mqtt']
             print(self.port)
             self.keepalive = self.parametres['keepalive']
@@ -62,7 +62,7 @@ class mqttclient:
         # Enregistre notre script comme client MQTT, càd comme pouvant interagir avec l'interface MQTT.
         self.my_client = mqtt.Client(self.nom)
 
-        # Enregistrer les fonctions à appelés automatiquement lors de la connexion, déconnexion et la réception d'un message
+        # Enregistrer les fonctions à appeler automatiquement lors de la connexion, déconnexion et la réception d'un message
         self.my_client.on_connect = self.on_connect_cb
         self.my_client.on_disconnect = self.on_disconnect_cb
         self.my_client.on_message = self.on_message_cb
@@ -83,14 +83,19 @@ class mqttclient:
         Fonction chargée de la connexion à l'interface MQTT.
         """
         if "" != adresse:
-            self.adresse = adresse
-
+            self.adresse_serveur_mqtt = adresse
+        elif self.parametres['adresse_serveur_mqtt'] != "" :
+            self.adresse_serveur_mqtt = self.parametres['adresse_serveur_mqtt']
+        else :
+            print("Erreur! Vous devez fournir l'adresse du serveur MQTT soit sur la ligne de commande, soit dans le fichier \"demolora.json\"")
+            sys.exit(0)
+        
         if 0 != port:
             self.port = port
             
-        print("adresse : " + self.adresse + "; port : " + str(self.port) + "; keepalive : " + str(self.keepalive))
+        print("adresse : " + self.adresse_serveur_mqtt + "; port : " + str(self.port) + "; keepalive : " + str(self.keepalive))
         self.my_client.loop_start()
-        self.my_client.connect(self.adresse, self.port, self.keepalive)
+        self.my_client.connect(self.adresse_serveur_mqtt, self.port, self.keepalive)
         # Attends que la connexion soit établie
         while not self.my_client.is_connected():
             time.sleep(.1)
@@ -116,7 +121,7 @@ class mqttclient:
         Fonction appelée lorsque un message est reçu.
         """
         #global  application
-        print("Message Recu ! ! !")
+        print("Message MQTT Recu ! ! !")
         del client, userdata
         # On prend le thème dans le paquet contenant le message.
         theme = message.topic
@@ -129,7 +134,7 @@ class mqttclient:
         # On conserve le dernier message dans la variable globale.
         sad.message_recu = message_json
 
-        try :  # On décode le message du LHT65N
+        try :  # On décode le message 
             objet_code = message_json["object"]
             deviceInfo = message_json["deviceInfo"]
             
@@ -137,20 +142,17 @@ class mqttclient:
             print(objet_code)
             print("deviceInfo: ")
             print(deviceInfo)
+
+            print("BatV: ")
+            print(str(objet_code["BatV"] * 100))
             
-            print("TempC_SHT: ")
-            print(objet_code["TempC_SHT"])
-            print("Hum_SHT: ")
-            print(objet_code["Hum_SHT"])
+            print("data_0: ")
+            print(objet_code["data_0"])
+            print("data_1: ")
+            print(objet_code["data_1"])
             print("devEUI: ")
             print(deviceInfo["devEui"])
-            #sad.qGui.put("{\"TempC_SHT\":" + objet_code["TempC_SHT"] + "}")
-            #sad.qGui.put("{\"Hum_SHT\":" + objet_code["Hum_SHT"] + "}")
-            #strData = "{\"devEui\":" + objet_code["devEui"] + ", \"devEui\":" + deviceInfo["devEui"] + ", \"Hum_SHT\":" + objet_code["Hum_SHT"] + "}"
-            strData = "{\"devEui\":\"" + deviceInfo["devEui"] + "\", \"TempC_SHT\":" + objet_code["TempC_SHT"] + ", \"Hum_SHT\":" + objet_code["Hum_SHT"] + "}"
-            #sad.qGui.put("{\"devEui\":" + objet_code["devEui"] + "}")
-            #sad.qGui.put("{\"TempC_SHT\":" + objet_code["TempC_SHT"] + "}")
-            #sad.qGui.put("{\"Hum_SHT\":" + objet_code["Hum_SHT"] + "}")
+            strData = "{\"devEui\":\"" + deviceInfo["devEui"] + "\", \"BatV\":\"" + str(int(objet_code["BatV"] * 100)) + "\", \"data_0\":" + objet_code["data_0"] + ", \"data_1\":" + objet_code["data_1"] + "}"
             sad.qGui.put(strData)
 
             named_tuple = time.localtime() # get struct_time
@@ -162,13 +164,13 @@ class mqttclient:
                 f_resultats = csv.writer(csvwritefile, delimiter=';',
                                           quotechar='', quoting=csv.QUOTE_NONE)
 
-                #if 0 == os.stat(filename).st_size:
-                #    f_resultats.writerow(['Time','TempC_SHT','Hum_SHT','Alarme'])
-
                 time_string = time.strftime("%H:%M:%S", named_tuple)
 
-                f_resultats.writerow([time_string, objet_code["TempC_SHT"], objet_code["Hum_SHT"], 'Alarme'])
-
+                if "a840411261881bc6" == deviceInfo["devEui"] : 
+                    f_resultats.writerow([time_string, objet_code["data_0"], objet_code["data_1"], "", "", 'Alarme'])
+                elif "df625857c791302f" == deviceInfo["devEui"] : 
+                    f_resultats.writerow([time_string,"", "", objet_code["data_0"], objet_code["data_1"], 'Alarme'])
+                    
         except Exception as excpt:
             print("Erreur de décodage des données!")
             print("Erreur : ", excpt)
