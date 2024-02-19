@@ -94,15 +94,20 @@ class mqttclient:
             self.port = port
             
         print("adresse : " + self.adresse_serveur_mqtt + "; port : " + str(self.port) + "; keepalive : " + str(self.keepalive))
-        self.my_client.loop_start()
-        self.my_client.connect(self.adresse_serveur_mqtt, self.port, self.keepalive)
-        # Attends que la connexion soit établie
-        while not self.my_client.is_connected():
-            time.sleep(.1)
+        try:
+            self.my_client.loop_start()
+            self.my_client.connect(self.adresse_serveur_mqtt, self.port, self.keepalive)
+            # Attends que la connexion soit établie
+            while not self.my_client.is_connected():
+                time.sleep(.1)
             
-        for client in self.parametres['eui_clients'] :
-            print("Thème ==>" + str(client['topic']))
-            self.my_client.subscribe(client['topic'])
+            for client in self.parametres['eui_clients'] :
+                print("Thème ==>" + str(client['topic']))
+                self.my_client.subscribe(client['topic'])
+
+        except Exception as e :
+            print("Serveur mqtt inacessible à l'adresse ", self.adresse_serveur_mqtt )
+            #sys.exit(0)
         
         print("MQTT client connected.")
         

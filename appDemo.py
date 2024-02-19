@@ -10,6 +10,8 @@ from tkinter import simpledialog
 
 import supportAppDemo as sad
 import mqttclient
+import sendemail
+
 
 class appDemo:
 
@@ -23,24 +25,29 @@ class appDemo:
     adresseIP = None
     port = None
     labels = list()
+    alarmes = [False, False, False, False]
     
     def __init__(self, geo="1000x700+225+150", confFile="demolora.json"):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
 
         with open(confFile, 'r') as file:
-            parametres = json.load(file)
+            self.parametres = json.load(file)
 
-        self.adresseIP = parametres['adresse_serveur_mqtt']
-        self.port = parametres['port_tcp_serveur_mqtt']
+        self.adresseIP = self.parametres['adresse_serveur_mqtt']
+        self.port = self.parametres['port_tcp_serveur_mqtt']
 
+        self.email_sender = self.parametres['email_sender']
+        self.app_password = self.parametres['app_password']
+        
         print("Veuillez patienter, mise en route du programme en cours")
         self.root = tk.Tk()
         self.root.geometry(geo)
-        self.root.resizable(False, False)
-        #root.attributes('-fullscreen',True)
+        #self.root.resizable(False, False)
+        #self.root.attributes('-fullscreen',True)
+        self.root.minsize(1000, 700)
         self.root.title("Cégep Joliette Télécom@" + str(socket.gethostname()))
-        self.root.wm_attributes('-alpha', 0.5)
+        self.root.wm_attributes('-alpha', 0.75)
         #self.root.overrideredirect(True)  # Remove window borders
         #self.root.wait_visibility(self.root)
 
@@ -63,9 +70,31 @@ class appDemo:
             print("Erreur : ", excpt)
             sys.exit()
 
-        self.Header = tk.Label(self.root, image=self.photo, width=1184, height=164)
-        self.Header.place(relx=0.0, rely=0.03)
+        # Get the current screen width and height
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # Print the screen width and height
+        print("Screen width:", screen_width)
+        print("Screen height:", screen_height)            
+
+        window_width = self.root.winfo_width()
+        window_height = self.root.winfo_height()
+        
+        # Print the window width and height
+        print("Window width:", self.root.winfo_width())
+        print("Window height:", self.root.winfo_height())            
+
+        # get the width and height of the image
+        image_width = self.photo.width()
+        image_height = self.photo.height()
+
+        #self.Header = tk.Label(self.root, image=self.photo, width=1184, height=164)
+        self.Header = tk.Label(self.root, image=self.photo, width=image_width, height=image_height)
+        self.Header.place(relx=0.5, rely=0.03, anchor=tk.N)
+
         self.Header.bind("<Button-1>", self.buttonLogoClick)
+        self.Header.bind("<Configure>", self.on_window_resize)
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         
@@ -148,8 +177,8 @@ class appDemo:
 
         self.lblTempInterne = tk.Label(self.root, anchor="w")
         self.lblTempInterne.place(relx=0.05, rely=0.4, height=23, width=340)
-        self.lblTempInterne.configure(text=parametres["eui_clients"][0]["client_lorawan"])
-#        self.lblTempInterne.configure(text=parametres["eui_clients"][0]["client_lorawan"][0]["label"])
+        self.lblTempInterne.configure(text=self.parametres["eui_clients"][0]["client_lorawan"])
+#        self.lblTempInterne.configure(text=self.parametres["eui_clients"][0]["client_lorawan"][0]["label"])
         self.lblTempInterne.configure(justify='left')
         self.lblTempInterne.configure(font=("Courrier New", 20))
         print("2-")
@@ -188,11 +217,12 @@ class appDemo:
 
         self.lblTempInterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
         self.lblTempInterneAlm.place(relx=0.91, rely=0.4)
+        self.lblTempInterneAlm.bind("<Button-1>", self.almTempIntClk) 
         
         self.lblHumInterne = tk.Label(self.root,anchor="w")
         self.lblHumInterne.place(relx=0.05, rely=0.45, height=23, width=320)
         #self.lblHumInterne.configure(text="Humidité Intérieure : ")
-        self.lblHumInterne.configure(text=parametres["eui_clients"][1]["client_lorawan"])
+        self.lblHumInterne.configure(text=self.parametres["eui_clients"][1]["client_lorawan"])
         self.lblHumInterne.configure(justify=tk.LEFT)
         self.lblHumInterne.configure(font=("Courrier New", 20))
         print("4-")
@@ -206,6 +236,7 @@ class appDemo:
 
         self.lblHumInterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
         self.lblHumInterneAlm.place(relx=0.91, rely=0.45)
+        self.lblHumInterneAlm.bind("<Button-1>", self.almHumIntClk) 
 
         self.lblHumInterneMin = tk.Label(self.root, anchor="w")
         self.lblHumInterneMin.place(relx=0.42, rely=0.45, height=23, width=200)
@@ -236,7 +267,7 @@ class appDemo:
         self.lblTempExterne = tk.Label(self.root, anchor="w")
         self.lblTempExterne.place(relx=0.05, rely=0.5, height=23, width=340)
         #self.lblTempExterne.configure(text="Température Extérieure : ")
-        self.lblTempExterne.configure(text=parametres["eui_clients"][2]["client_lorawan"])
+        self.lblTempExterne.configure(text=self.parametres["eui_clients"][2]["client_lorawan"])
         self.lblTempExterne.configure(justify='left')
         self.lblTempExterne.configure(font=("Courrier New", 20))
 
@@ -272,14 +303,15 @@ class appDemo:
         self.txtTempExterneAlmMax.configure(justify='left')
         self.txtTempExterneAlmMax.configure(font=("Courrier New", 20))
 
-        self.lblTempExterneAlm = tk.Label(self.root, image=self.almRouge, width=20, height=20)
+        self.lblTempExterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
         self.lblTempExterneAlm.place(relx=0.91, rely=0.5)
+        self.lblTempExterneAlm.bind("<Button-1>", self.almTempExtClk) 
 
         print("7-")
         self.lblHumExterne = tk.Label(self.root,anchor="w")
         self.lblHumExterne.place(relx=0.05, rely=0.55, height=23, width=310)
         #self.lblHumExterne.configure(text="Humidité Extérieure : ")
-        self.lblHumExterne.configure(text=parametres["eui_clients"][3]["client_lorawan"])
+        self.lblHumExterne.configure(text=self.parametres["eui_clients"][3]["client_lorawan"])
         self.lblHumExterne.configure(justify=tk.LEFT)
         self.lblHumExterne.configure(font=("Courrier New", 20))
 
@@ -315,9 +347,9 @@ class appDemo:
         self.txtHumExterneAlmMax.configure(justify='left')
         self.txtHumExterneAlmMax.configure(font=("Courrier New", 20))
 
-        self.lblHumExterneAlm = tk.Label(self.root, image=self.almRouge, width=20, height=20)
+        self.lblHumExterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
         self.lblHumExterneAlm.place(relx=0.91, rely=0.55)
-        
+        self.lblHumExterneAlm.bind("<Button-1>", self.almHumExtClk) 
 
         print("8-")
 
@@ -330,6 +362,17 @@ class appDemo:
         finally:
             s.close()
 
+    def on_configure(self, event):
+        if event.width != self.width or event.height != self.height:
+            self.width = event.width
+            self.height = event.height
+            self.resize()
+
+    def resize(self):
+        # Your resizing logic here
+        print(f"Resizing to {self.width}x{self.height}")
+
+            
     def buttonLogoClick(self, event):
 
         self.on_closing()
@@ -396,6 +439,85 @@ class appDemo:
         time_string = time.strftime("%Y%m%d %H:%M", heure)
 
         self.lblDate.configure(text=time_string)
+
+    def almTempIntClk(self, event):
+        '''
+        Cette fonction est appellée lorsque l'utilisateur clique sur 
+        l'icône de l'alarme (l'ndicateur rouge) dans le GUI.
+        L'alarme est désactivée et l'indicateur est remis au vert.
+        '''
+        self.alarmes[0] = False
+        self.lblTempInterneAlm.configure(image=self.almVerte)
+            
+    def almHumIntClk(self, event):
+        '''
+        Cette fonction est appellée lorsque l'utilisateur clique sur 
+        l'icône de l'alarme (l'indicateur rouge) dans le GUI.
+        L'alarme est désactivée et l'indicateur est remis au vert.
+        '''
+        self.alarmes[1] = False
+        self.lblHumInterneAlm.configure(image=self.almVerte)
+            
+    def almTempExtClk(self, event):
+        '''
+        Cette fonction est appellée lorsque l'utilisateur clique sur 
+        l'icône de l'alarme (l'indicateur rouge) dans le GUI.
+        L'alarme est désactivée et l'indicateur est remis au vert.
+        '''
+        self.alarmes[2] = False
+        self.lblTempExterneAlm.configure(image=self.almVerte)
+            
+    def almHumExtClk(self, event):
+        '''
+        Cette fonction est appellée lorsque l'utilisateur clique sur 
+        l'icône de l'alarme (l'indicateur rouge) dans le GUI.
+        L'alarme est désactivée et l'indicateur est remis au vert.
+        '''
+        self.alarmes[3] = False
+        self.lblHumExterneAlm.configure(image=self.almVerte)
+            
+    def findGuiIndex(self, DeviceEui, index_de_donnee):
+        for sensor in self.parametres['eui_clients']:
+            if sensor['eui']==DeviceEui and sensor['data_index']==index_de_donnee :
+                print(f"sensor_eui == {sensor['eui']}")
+                print(f"sensor_data_index == {sensor['data_index']}")
+                print(f"sensor_gui_index == {sensor['gui_index']}")
+                return sensor['gui_index']
+        return -1 # Indiquer l'erreur
+        
+    def findDescription(self, DeviceEui, index_de_donnee):
+        for sensor in self.parametres['eui_clients']:
+            if sensor['eui']==DeviceEui and sensor['data_index']==index_de_donnee :
+                print(f"sensor_eui == {sensor['eui']}")
+                print(f"sensor_data_index == {sensor['data_index']}")
+                print(f"sensor_client == {sensor['client_lorawan']}")
+                return sensor['client_lorawan']
+        return "client inconnu" # Indiquer l'erreur
+    
+    def findDestinataire(self, DeviceEui, index_de_donnee):
+        for sensor in self.parametres['eui_clients']:
+            if sensor['eui']==DeviceEui and sensor['data_index']==index_de_donnee :
+                print(f"sensor_dest == {sensor['dest_email']}")
+                return sensor['dest_email'] 
+        return "" # Indiquer l'erreur
+    
+    def generateAlarm(self, DeviceEui, donnee, type_de_donnee):
+
+        mGuiIndex = self.findGuiIndex(DeviceEui, type_de_donnee)
+        mDescription = self.findDescription(DeviceEui, type_de_donnee)
+        mDestinataire = self.findDestinataire(DeviceEui, type_de_donnee)
+        print(f"mDestinataire == {mDestinataire}")
+        print(f"mGuiIndex == {mGuiIndex}")
+        if self.alarmes[mGuiIndex] == False:
+            self.alarmes[mGuiIndex] = True
+            
+            sujet = "Alerte DemoLoRa ! ! !"
+            msg = f"Le capteur {mDescription} a atteint la valeur {donnee}. Voulez-vous envoyer le courriel d'alarme à {mDestinataire} ?"
+
+            if True == messagebox.askyesno(sujet, msg):
+                msg = f"Le capteur {mDescription} a atteint la valeur {donnee}."
+                sendemail.send_email(sujet, msg, self.email_sender, mDestinataire, self.app_password)
+            #def send_email(subject, body, sender, recipients, password):
         
     def addData(self, DeviceEui, donnee, type_de_donnee):
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
@@ -405,21 +527,36 @@ class appDemo:
             limites = self.findMiniMax("data_0")
             self.lblTempInterneMin.configure(text=str(limites[0]))
             self.lblTempInterneMax.configure(text=str(limites[1]))
+            if float(self.txtTempInterneAlmMin.get()) > float(donnee) or float(self.txtTempInterneAlmMax.get()) < float(donnee) :
+                self.lblTempInterneAlm.configure(image=self.almRouge)
+                self.generateAlarm(DeviceEui, donnee, type_de_donnee)
         elif("a840411261881bc6" == DeviceEui) and (1 == type_de_donnee):
             self.lblHumInterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_1")
             self.lblHumInterneMin.configure(text=str(limites[0]))
             self.lblHumInterneMax.configure(text=str(limites[1]))
+            if float(self.txtHumInterneAlmMin.get()) > float(donnee) or float(self.txtHumInterneAlmMax.get()) < float(donnee) :
+                self.lblHumInterneAlm.configure(image=self.almRouge)
+                self.generateAlarm(DeviceEui, donnee, type_de_donnee)
         elif("df625857c791302f" == DeviceEui) and (0 == type_de_donnee):
             self.lblTempExterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_2")
             self.lblTempExterneMin.configure(text=str(limites[0]))
             self.lblTempExterneMax.configure(text=str(limites[1]))
+            if float(self.txtTempExterneAlmMin.get()) > float(donnee) or float(self.txtTempExterneAlmMax.get()) < float(donnee) :
+                self.lblTempExterneAlm.configure(image=self.almRouge)
+                self.generateAlarm(DeviceEui, donnee, type_de_donnee)
         elif("df625857c791302f" == DeviceEui) and (1 == type_de_donnee):
             self.lblHumExterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_3")
             self.lblHumExterneMin.configure(text=str(limites[0]))
             self.lblHumExterneMax.configure(text=str(limites[1]))
+            print("self.txtHumExterneAlmMin.get() ==>", float(self.txtHumExterneAlmMin.get()))
+            print("self.txtHumExterneAlmMax.get() ==>", float(self.txtHumExterneAlmMax.get()))
+            print("donnee ==========================>", type(donnee))
+            if float(self.txtHumExterneAlmMin.get()) > donnee or float(self.txtHumExterneAlmMax.get()) < donnee :
+                self.lblHumExterneAlm.configure(image=self.almRouge)
+                self.generateAlarm(DeviceEui, donnee, type_de_donnee)
         self.updateTime()
             
     def addTemperatureSHT(self, data):
@@ -475,6 +612,12 @@ class appDemo:
             time.sleep(1)
             #root.destroy()
             
+    def on_window_resize(self, event):
+        width = event.width
+        height = event.height
+        print(f"Window resized to {width}x{height}")
+        print(event)
+        
     def Label1Click(self, event):
 
         self.TextDebug.delete("1.0", "end")
