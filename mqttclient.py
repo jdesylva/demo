@@ -60,7 +60,8 @@ class mqttclient:
             sys.exit()
             
         # Enregistre notre script comme client MQTT, càd comme pouvant interagir avec l'interface MQTT.
-        self.my_client = mqtt.Client(self.nom)
+        # self.my_client = mqtt.Client(self.nom)
+        self.my_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, self.nom)
 
         # Enregistrer les fonctions à appeler automatiquement lors de la connexion, déconnexion et la réception d'un message
         self.my_client.on_connect = self.on_connect_cb
