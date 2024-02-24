@@ -1,0 +1,1 @@
+Script Python permettant d'afficher les valeurs transmises par des capteurs IdO. Le script utilise la bibliothèque Tkinter pour l'interface utilisateur. Le script se relie à un serveur mqtt et s'abonne aux thèmes associés aux capteurs. La configuration du programme s'effectue à l'aide d'un fichier au format "json".
