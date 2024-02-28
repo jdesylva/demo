@@ -522,7 +522,7 @@ class appDemo:
     def addData(self, DeviceEui, donnee, type_de_donnee):
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         print(type(DeviceEui))
-        if("a840411261881bc6" == DeviceEui) and (0 == type_de_donnee):
+        if(self.parametres["eui_clients"][0]["eui"] == DeviceEui) and (0 == type_de_donnee):
             self.lblTempInterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_0")
             self.lblTempInterneMin.configure(text=str(limites[0]))
@@ -530,7 +530,7 @@ class appDemo:
             if float(self.txtTempInterneAlmMin.get()) > float(donnee) or float(self.txtTempInterneAlmMax.get()) < float(donnee) :
                 self.lblTempInterneAlm.configure(image=self.almRouge)
                 self.generateAlarm(DeviceEui, donnee, type_de_donnee)
-        elif("a840411261881bc6" == DeviceEui) and (1 == type_de_donnee):
+        elif(self.parametres["eui_clients"][1]["eui"] == DeviceEui) and (1 == type_de_donnee):
             self.lblHumInterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_1")
             self.lblHumInterneMin.configure(text=str(limites[0]))
@@ -538,7 +538,7 @@ class appDemo:
             if float(self.txtHumInterneAlmMin.get()) > float(donnee) or float(self.txtHumInterneAlmMax.get()) < float(donnee) :
                 self.lblHumInterneAlm.configure(image=self.almRouge)
                 self.generateAlarm(DeviceEui, donnee, type_de_donnee)
-        elif("df625857c791302f" == DeviceEui) and (0 == type_de_donnee):
+        elif(self.parametres["eui_clients"][2]["eui"] == DeviceEui) and (0 == type_de_donnee):
             self.lblTempExterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_2")
             self.lblTempExterneMin.configure(text=str(limites[0]))
@@ -546,7 +546,7 @@ class appDemo:
             if float(self.txtTempExterneAlmMin.get()) > float(donnee) or float(self.txtTempExterneAlmMax.get()) < float(donnee) :
                 self.lblTempExterneAlm.configure(image=self.almRouge)
                 self.generateAlarm(DeviceEui, donnee, type_de_donnee)
-        elif("df625857c791302f" == DeviceEui) and (1 == type_de_donnee):
+        elif(self.parametres["eui_clients"][3]["eui"] == DeviceEui) and (1 == type_de_donnee):
             self.lblHumExterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_3")
             self.lblHumExterneMin.configure(text=str(limites[0]))

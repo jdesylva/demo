@@ -172,9 +172,11 @@ class mqttclient:
 
                 time_string = time.strftime("%H:%M:%S", named_tuple)
 
-                if "a840411261881bc6" == deviceInfo["devEui"] : 
+                if(self.parametres["eui_clients"][0]["eui"] == deviceInfo["devEui"]):
+                #if "a840411261881bc6" == deviceInfo["devEui"] : 
                     f_resultats.writerow([time_string, objet_code["data_0"], objet_code["data_1"], "", "", 'Alarme'])
-                elif "df625857c791302f" == deviceInfo["devEui"] : 
+                #elif "df625857c791302f" == deviceInfo["devEui"] : 
+                elif(self.parametres["eui_clients"][2]["eui"] == deviceInfo["devEui"]):
                     f_resultats.writerow([time_string,"", "", objet_code["data_0"], objet_code["data_1"], 'Alarme'])
                     
         except Exception as excpt:
