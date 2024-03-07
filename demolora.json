@@ -21,23 +21,25 @@
 	    "peripheriques" :
 	    [
 		{"gui_index" : 2, "label" : "Température Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"},
-		{"gui_index" : 3, "label" : "Humidité Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"}
+		{"gui_index" : 3, "label" : "Humidité Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"},
+		{"gui_index" : 4, "label" : "Température Extérieure 2", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"},
+		{"gui_index" : 5, "label" : "Humidité Extérieure 2", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"}
 	    ]
 	},
 	{
 	    "euid" : "a840411261881bc6",
 	    "peripheriques" :
 	    [
-		{"gui_index" : 2, "label" : "Température Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"},
-		{"gui_index" : 3, "label" : "Humidité Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"}
+		{"gui_index" : 6, "label" : "Température Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"},
+		{"gui_index" : 7, "label" : "Humidité Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"}
 	    ]
 	},
 	{
 	    "euid" : "a840411261881bc6",
 	    "peripheriques" :
 	    [
-		{"gui_index" : 2, "label" : "Température Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"},
-		{"gui_index" : 3, "label" : "Humidité Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"}
+		{"gui_index" : 8, "label" : "Température Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"},
+		{"gui_index" : 9, "label" : "Humidité Extérieure", "dest_email" : "jacques.de.sylva@cegep-lanaudiere.qc.ca"}
 	    ]
 	}
     ]

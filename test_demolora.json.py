@@ -10,7 +10,7 @@ le même répertoire et l'exécuter.
 JDS : 18 février 2024
 '''
 
-with open("demolora1.json", 'r') as file:
+with open("demolora.json", 'r') as file:
     parametres = json.load(file)
     
 print(parametres)
@@ -31,13 +31,13 @@ for client in listeClients :
     monClientEuid = client["euid"]
     print(f"Euid client[{i}] = ", monClientEuid)
     j=0
-    for donnee in client["peripheriques"]:
-        monClientGuiIndex = donnee["gui_index"]
-        print(f"GuiIndex client[{i}] donnee[{j}] = ", monClientGuiIndex)
-        monClientLabel = donnee["label"]
-        print(f"Label client[{i}] donnee[{j}] = ", monClientLabel)
-        monClientDestEmail = donnee["dest_email"]
-        print(f"Label client[{i}] donnee[{j}] = ", monClientDestEmail)
+    for peripherique in client["peripheriques"]:
+        monClientGuiIndex = peripherique["gui_index"]
+        print(f"GuiIndex client[{i}] peripherique[{j}] = ", monClientGuiIndex)
+        monClientLabel = peripherique["label"]
+        print(f"Label client[{i}] peripherique[{j}] = ", monClientLabel)
+        monClientDestEmail = peripherique["dest_email"]
+        print(f"Label client[{i}] peripherique[{j}] = ", monClientDestEmail)
         j +=1
         #print("....................")
     #print(f'Client #{i} euid = ', f'{monClient[0]["euid"]}')

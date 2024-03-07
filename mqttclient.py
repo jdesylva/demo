@@ -46,7 +46,7 @@ class mqttclient:
 
             # Informations sur nos objets
             for client in self.parametres['eui_clients'] :
-                client['topic']=f"application/{self.appeui}/device/{client['eui']}/event/up"
+                client['topic']=f"application/{self.appeui}/device/{client['euid']}/event/up"
                 print("==>" + str(client))
                 self.eui_client.append(client)
                 
@@ -173,11 +173,11 @@ class mqttclient:
 
                 time_string = time.strftime("%H:%M:%S", named_tuple)
 
-                if(self.parametres["eui_clients"][0]["eui"] == deviceInfo["devEui"]):
+                if(self.parametres["eui_clients"][0]["euid"] == deviceInfo["devEui"]):
                 #if "a840411261881bc6" == deviceInfo["devEui"] : 
                     f_resultats.writerow([time_string, objet_code["data_0"], objet_code["data_1"], "", "", 'Alarme'])
                 #elif "df625857c791302f" == deviceInfo["devEui"] : 
-                elif(self.parametres["eui_clients"][2]["eui"] == deviceInfo["devEui"]):
+                elif(self.parametres["eui_clients"][2]["euid"] == deviceInfo["devEui"]):
                     f_resultats.writerow([time_string,"", "", objet_code["data_0"], objet_code["data_1"], 'Alarme'])
                     
         except Exception as excpt:
