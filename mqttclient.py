@@ -100,7 +100,8 @@ class mqttclient:
             self.my_client.connect(self.adresse_serveur_mqtt, self.port, self.keepalive)
             # Attends que la connexion soit établie
             while not self.my_client.is_connected():
-                time.sleep(.1)
+                time.sleep(1)
+                print(".")
             
             for client in self.parametres['eui_clients'] :
                 print("Thème ==>" + str(client['topic']))
@@ -191,6 +192,9 @@ class mqttclient:
         del client, userdata, flags
         if return_code == 0:
             print("Connexion établie")
+            for client in self.parametres['eui_clients'] :
+                print("Thème ==>" + str(client['topic']))
+                self.my_client.subscribe(client['topic'])
         else:
             print("Échec de connexion")
             sys.exit(-1)

@@ -70,6 +70,10 @@ class appDemo:
             print("Erreur : ", excpt)
             sys.exit()
 
+        # Relier notre client à l'interface MQTT de notre serveur ChirpStack
+        mqtt_client = mqttclient.mqttclient("demolora.json")
+        mqtt_client.connect()
+
         # Get the current screen width and height
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
@@ -611,6 +615,7 @@ class appDemo:
             self.lafin = True
             time.sleep(1)
             #root.destroy()
+            #self.mqtt_client.disconnect()
             
     def on_window_resize(self, event):
         width = event.width
