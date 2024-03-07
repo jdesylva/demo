@@ -16,7 +16,6 @@ import supportAppDemo as sad
 class mqttclient:
 
     parametres = None
-    eui_client = list()
 
     def __init__(self, confFile="demolora.json"):
         """
@@ -48,10 +47,7 @@ class mqttclient:
             for client in self.parametres['eui_clients'] :
                 client['topic']=f"application/{self.appeui}/device/{client['eui']}/event/up"
                 print("==>" + str(client))
-                self.eui_client.append(client)
                 
-            print("Liste ==>" + str(self.eui_client))
-            
         except Exception as excpt:
             print("Erreur lors de la lecture du fichier de configuration \"" + confFile)
             print("Fin prématurée du programme.")
