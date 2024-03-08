@@ -16,7 +16,6 @@ import supportAppDemo as sad
 class mqttclient:
 
     parametres = None
-    eui_client = list()
 
     def __init__(self, confFile="demolora.json"):
         """
@@ -48,9 +47,6 @@ class mqttclient:
             for client in self.parametres['eui_clients'] :
                 client['topic']=f"application/{self.appeui}/device/{client['euid']}/event/up"
                 print("==>" + str(client))
-                self.eui_client.append(client)
-                
-            print("Liste ==>" + str(self.eui_client))
             
         except Exception as excpt:
             print("Erreur lors de la lecture du fichier de configuration \"" + confFile)
@@ -144,21 +140,7 @@ class mqttclient:
         try :  # On décode le message 
             objet_code = message_json["object"]
             deviceInfo = message_json["deviceInfo"]
-            
-            print("objet: ")
-            print(objet_code)
-            print("deviceInfo: ")
-            print(deviceInfo)
 
-            print("BatV: ")
-            print(str(objet_code["BatV"] * 100))
-            
-            print("data_0: ")
-            print(objet_code["data_0"])
-            print("data_1: ")
-            print(objet_code["data_1"])
-            print("devEUI: ")
-            print(deviceInfo["devEui"])
             strData = "{\"devEui\":\"" + deviceInfo["devEui"] + "\", \"BatV\":\"" + str(int(objet_code["BatV"] * 100)) + "\", \"data_0\":" + objet_code["data_0"] + ", \"data_1\":" + objet_code["data_1"] + "}"
             sad.qGui.put(strData)
 
@@ -173,13 +155,24 @@ class mqttclient:
 
                 time_string = time.strftime("%H:%M:%S", named_tuple)
 
-                if(self.parametres["eui_clients"][0]["euid"] == deviceInfo["devEui"]):
-                #if "a840411261881bc6" == deviceInfo["devEui"] : 
-                    f_resultats.writerow([time_string, objet_code["data_0"], objet_code["data_1"], "", "", 'Alarme'])
-                #elif "df625857c791302f" == deviceInfo["devEui"] : 
-                elif(self.parametres["eui_clients"][2]["euid"] == deviceInfo["devEui"]):
-                    f_resultats.writerow([time_string,"", "", objet_code["data_0"], objet_code["data_1"], 'Alarme'])
-                    
+                for client in self.parametres["eui_clients"] :
+                    if(client["euid"] == deviceInfo["devEui"]):
+                        i = 0
+                        for peripherique in client["peripheriques"]:
+                            if i == 0:
+                                f_resultats.writerow([time_string, objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
+                            elif i == 1:
+                                f_resultats.writerow([time_string, "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
+                            elif i == 2:
+                                f_resultats.writerow([time_string, "", "", "", "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
+                            elif i == 3:
+                                f_resultats.writerow([time_string, "", "", "", "", "", "", "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
+                            elif i == 4:
+                                f_resultats.writerow([time_string, "", "", "", "", "", "", "", "", "", "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
+                            else:
+                                f_resultats.writerow([time_string, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
+                            i += 1
+                                
         except Exception as excpt:
             print("Erreur de décodage des données!")
             print("Erreur : ", excpt)

@@ -8,6 +8,7 @@ import tkinter.messagebox as messagebox
 
 from tkinter import simpledialog 
 
+from periListe import peripheriquesListe as pl
 import supportAppDemo as sad
 import mqttclient
 import sendemail
@@ -26,6 +27,8 @@ class appDemo:
     port = None
     labels = list()
     alarmes = [False, False, False, False]
+
+    
     
     def __init__(self, geo="1000x700+225+150", confFile="demolora.json"):
         '''This class configures and populates the toplevel window.
@@ -50,6 +53,8 @@ class appDemo:
         self.root.wm_attributes('-alpha', 0.75)
         #self.root.overrideredirect(True)  # Remove window borders
         #self.root.wait_visibility(self.root)
+
+        
 
         try :
 
@@ -105,27 +110,27 @@ class appDemo:
         heure = time.localtime() # get struct_time
         time_string = time.strftime("%Y%m%d %H:%M", heure)
 
-        self.lblDate = tk.Label(self.root, anchor="w")
+        self.lblDate = tk.Label(self.root, anchor="w")                                 # Entete
         self.lblDate.place(relx=0.05, rely=0.3, height=27, width=225)
         self.lblDate.configure(text=time_string)
         self.lblDate.configure(justify='left')
         self.lblDate.configure(font=("Courrier New", 12))
 
-        self.lblAdresseIP = tk.Label(self.root, anchor="w")
+        self.lblAdresseIP = tk.Label(self.root, anchor="w")                                # Bas de page
         self.lblAdresseIP.place(relx=0.05, rely=0.95, height=23, width=225)
         self.lblAdresseIP.configure(text="Serveur " + self.adresseIP)
         self.lblAdresseIP.configure(justify='left')
         self.lblAdresseIP.configure(font=("Courrier New", 10, "bold"))
         self.lblAdresseIP.bind("<Button-1>", self.buttonAdresse)
 
-        self.lblPortTCP = tk.Label(self.root, anchor="w")
+        self.lblPortTCP = tk.Label(self.root, anchor="w")                                # Bas de page
         self.lblPortTCP.place(relx=0.25, rely=0.95, height=23, width=100)
         self.lblPortTCP.configure(text="Port " + ":" + str(self.port))
         self.lblPortTCP.configure(justify='left')
         self.lblPortTCP.configure(font=("Courrier New", 10, "bold"))
         self.lblPortTCP.bind("<Button-1>", self.buttonPort)
 
-        self.TextDebug = tk.Text(self.root)
+        self.TextDebug = tk.Text(self.root)                                            # Bas de page (debug)
         self.TextDebug.place(relx=0.05, rely=0.744, relheight=0.2, relwidth=0.877)
         self.TextDebug.configure(background="lightgrey")
         self.TextDebug.configure(font="TkTextFont")
@@ -134,7 +139,7 @@ class appDemo:
         self.TextDebug.insert(tk.END, str(self.root))
         self.TextDebug.insert(tk.END, "\n")
 
-        self.Label1 = tk.Label(self.root)
+        self.Label1 = tk.Label(self.root)                                              # Bas de page
         self.Label1.place(relx=0.0, rely=0.7, height=21, width=200)
         self.Label1.configure(text="- - - - - ")
         self.Label1.configure(justify='left')
@@ -143,219 +148,7 @@ class appDemo:
         self.labels.append(self.Label1)
         print("1-")
 
-        self.lblTemperature = tk.Label(self.root, anchor="w")
-        self.lblTemperature.place(relx=0.05, rely=0.35, height=23, width=400)
-        self.lblTemperature.configure(text="Données actuelles")
-        self.lblTemperature.configure(justify='left')
-        self.lblTemperature.configure(font=("Courrier New", 20, "bold"))
-
-        self.lblMinimum = tk.Label(self.root, anchor="w")
-        self.lblMinimum.place(relx=0.42, rely=0.35, height=23, width=200)
-        self.lblMinimum.configure(text="Min.")
-        self.lblMinimum.configure(justify='left')
-        self.lblMinimum.configure(font=("Courrier New", 20, "bold"))
-
-        self.lblMaximum = tk.Label(self.root, anchor="w")
-        self.lblMaximum.place(relx=0.52, rely=0.35, height=23, width=200)
-        self.lblMaximum.configure(text="Max.")
-        self.lblMaximum.configure(justify='left')
-        self.lblMaximum.configure(font=("Courrier New", 20, "bold"))
-
-        self.lblLimitMinimum = tk.Label(self.root, anchor="w")
-        self.lblLimitMinimum.place(relx=0.62, rely=0.35, height=23, width=200)
-        self.lblLimitMinimum.configure(text="Limite -")
-        self.lblLimitMinimum.configure(justify='left')
-        self.lblLimitMinimum.configure(font=("Courrier New", 20, "bold"))
-
-        self.lblLimitMaximum = tk.Label(self.root, anchor="w")
-        self.lblLimitMaximum.place(relx=0.73, rely=0.35, height=23, width=200)
-        self.lblLimitMaximum.configure(text="Limite +")
-        self.lblLimitMaximum.configure(justify='left')
-        self.lblLimitMaximum.configure(font=("Courrier New", 20, "bold"))
-
-        self.lblAlarme = tk.Label(self.root, anchor="w")
-        self.lblAlarme.place(relx=0.86, rely=0.35, height=23, width=200)
-        self.lblAlarme.configure(text="Alarme")
-        self.lblAlarme.configure(justify='left')
-        self.lblAlarme.configure(font=("Courrier New", 20, "bold"))
-
-        self.lblTempInterne = tk.Label(self.root, anchor="w")
-        self.lblTempInterne.place(relx=0.05, rely=0.4, height=23, width=340)
-        self.lblTempInterne.configure(text=self.parametres["eui_clients"][0]["client_lorawan"])
-#        self.lblTempInterne.configure(text=self.parametres["eui_clients"][0]["client_lorawan"][0]["label"])
-        self.lblTempInterne.configure(justify='left')
-        self.lblTempInterne.configure(font=("Courrier New", 20))
-        print("2-")
-
-        self.lblTempInterneVal = tk.Label(self.root, anchor="w")
-        self.lblTempInterneVal.place(relx=0.34, rely=0.4, height=23, width=200)
-        self.lblTempInterneVal.configure(text="---")
-        self.lblTempInterneVal.configure(justify='left')
-        self.lblTempInterneVal.configure(font=("Courrier New", 20))
-        self.labels.append(self.lblTempInterneVal)
-
-        self.lblTempInterneMin = tk.Label(self.root, anchor="w")
-        self.lblTempInterneMin.place(relx=0.42, rely=0.4, height=23, width=200)
-        self.lblTempInterneMin.configure(text="---")
-        self.lblTempInterneMin.configure(justify='left')
-        self.lblTempInterneMin.configure(font=("Courrier New", 20))
-
-        self.lblTempInterneMax = tk.Label(self.root, anchor="w")
-        self.lblTempInterneMax.place(relx=0.52, rely=0.4, height=23, width=200)
-        self.lblTempInterneMax.configure(text="---")
-        self.lblTempInterneMax.configure(justify='left')
-        self.lblTempInterneMax.configure(font=("Courrier New", 20))
-        print("3-")
-
-        self.txtTempInterneAlmMin = tk.Entry(self.root, bg="lightgrey")
-        self.txtTempInterneAlmMin.place(relx=0.62, rely=0.4, height=27, width=80)
-        self.txtTempInterneAlmMin.insert(0, "0")
-        self.txtTempInterneAlmMin.configure(justify='left')
-        self.txtTempInterneAlmMin.configure(font=("Courrier New", 20))
-
-        self.txtTempInterneAlmMax = tk.Entry(self.root, bg="lightgrey")
-        self.txtTempInterneAlmMax.place(relx=0.73, rely=0.4, height=27, width=80)
-        self.txtTempInterneAlmMax.insert(0, "100")
-        self.txtTempInterneAlmMax.configure(justify='left')
-        self.txtTempInterneAlmMax.configure(font=("Courrier New", 20))
-
-        self.lblTempInterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
-        self.lblTempInterneAlm.place(relx=0.91, rely=0.4)
-        self.lblTempInterneAlm.bind("<Button-1>", self.almTempIntClk) 
-        
-        self.lblHumInterne = tk.Label(self.root,anchor="w")
-        self.lblHumInterne.place(relx=0.05, rely=0.45, height=23, width=320)
-        #self.lblHumInterne.configure(text="Humidité Intérieure : ")
-        self.lblHumInterne.configure(text=self.parametres["eui_clients"][1]["client_lorawan"])
-        self.lblHumInterne.configure(justify=tk.LEFT)
-        self.lblHumInterne.configure(font=("Courrier New", 20))
-        print("4-")
-
-        self.lblHumInterneVal = tk.Label(self.root, anchor="w")
-        self.lblHumInterneVal.place(relx=0.34, rely=0.45, height=23, width=200)
-        self.lblHumInterneVal.configure(text="---")
-        self.lblHumInterneVal.configure(justify='left')
-        self.lblHumInterneVal.configure(font=("Courrier New", 20))
-        self.labels.append(self.lblHumInterneVal)
-
-        self.lblHumInterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
-        self.lblHumInterneAlm.place(relx=0.91, rely=0.45)
-        self.lblHumInterneAlm.bind("<Button-1>", self.almHumIntClk) 
-
-        self.lblHumInterneMin = tk.Label(self.root, anchor="w")
-        self.lblHumInterneMin.place(relx=0.42, rely=0.45, height=23, width=200)
-        self.lblHumInterneMin.configure(text="---")
-        self.lblHumInterneMin.configure(justify='left')
-        self.lblHumInterneMin.configure(font=("Courrier New", 20))
-
-        self.lblHumInterneMax = tk.Label(self.root, anchor="w")
-        self.lblHumInterneMax.place(relx=0.52, rely=0.45, height=23, width=200)
-        self.lblHumInterneMax.configure(text="---")
-        self.lblHumInterneMax.configure(justify='left')
-        self.lblHumInterneMax.configure(font=("Courrier New", 20))
-
-        self.txtHumInterneAlmMin = tk.Entry(self.root, bg="lightgrey")
-        self.txtHumInterneAlmMin.place(relx=0.62, rely=0.45, height=27, width=80)
-        self.txtHumInterneAlmMin.insert(0, "0")
-        self.txtHumInterneAlmMin.configure(justify='left')
-        self.txtHumInterneAlmMin.configure(font=("Courrier New", 20))
-
-        self.txtHumInterneAlmMax = tk.Entry(self.root, bg="lightgrey")
-        self.txtHumInterneAlmMax.place(relx=0.73, rely=0.45, height=27, width=80)
-        self.txtHumInterneAlmMax.insert(0, "100")
-        self.txtHumInterneAlmMax.configure(justify='left')
-        self.txtHumInterneAlmMax.configure(font=("Courrier New", 20))
-
-        print("5-")
-
-        self.lblTempExterne = tk.Label(self.root, anchor="w")
-        self.lblTempExterne.place(relx=0.05, rely=0.5, height=23, width=340)
-        #self.lblTempExterne.configure(text="Température Extérieure : ")
-        self.lblTempExterne.configure(text=self.parametres["eui_clients"][2]["client_lorawan"])
-        self.lblTempExterne.configure(justify='left')
-        self.lblTempExterne.configure(font=("Courrier New", 20))
-
-        print("6-")
-
-        self.lblTempExterneVal = tk.Label(self.root, anchor="w")
-        self.lblTempExterneVal.place(relx=0.34, rely=0.5, height=23, width=200)
-        self.lblTempExterneVal.configure(text="---")
-        self.lblTempExterneVal.configure(justify='left')
-        self.lblTempExterneVal.configure(font=("Courrier New", 20))
-
-        self.lblTempExterneMin = tk.Label(self.root, anchor="w")
-        self.lblTempExterneMin.place(relx=0.42, rely=0.5, height=23, width=200)
-        self.lblTempExterneMin.configure(text="---")
-        self.lblTempExterneMin.configure(justify='left')
-        self.lblTempExterneMin.configure(font=("Courrier New", 20))
-
-        self.lblTempExterneMax = tk.Label(self.root, anchor="w")
-        self.lblTempExterneMax.place(relx=0.52, rely=0.5, height=23, width=200)
-        self.lblTempExterneMax.configure(text="---")
-        self.lblTempExterneMax.configure(justify='left')
-        self.lblTempExterneMax.configure(font=("Courrier New", 20))
-
-        self.txtTempExterneAlmMin = tk.Entry(self.root, bg="lightgrey")
-        self.txtTempExterneAlmMin.place(relx=0.62, rely=0.5, height=27, width=80)
-        self.txtTempExterneAlmMin.insert(0, "0")
-        self.txtTempExterneAlmMin.configure(justify='left')
-        self.txtTempExterneAlmMin.configure(font=("Courrier New", 20))
-
-        self.txtTempExterneAlmMax = tk.Entry(self.root, bg="lightgrey")
-        self.txtTempExterneAlmMax.place(relx=0.73, rely=0.5, height=27, width=80)
-        self.txtTempExterneAlmMax.insert(0, "100")
-        self.txtTempExterneAlmMax.configure(justify='left')
-        self.txtTempExterneAlmMax.configure(font=("Courrier New", 20))
-
-        self.lblTempExterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
-        self.lblTempExterneAlm.place(relx=0.91, rely=0.5)
-        self.lblTempExterneAlm.bind("<Button-1>", self.almTempExtClk) 
-
-        print("7-")
-        self.lblHumExterne = tk.Label(self.root,anchor="w")
-        self.lblHumExterne.place(relx=0.05, rely=0.55, height=23, width=310)
-        #self.lblHumExterne.configure(text="Humidité Extérieure : ")
-        self.lblHumExterne.configure(text=self.parametres["eui_clients"][3]["client_lorawan"])
-        self.lblHumExterne.configure(justify=tk.LEFT)
-        self.lblHumExterne.configure(font=("Courrier New", 20))
-
-        self.lblHumExterneVal = tk.Label(self.root, anchor="w")
-        self.lblHumExterneVal.place(relx=0.34, rely=0.55, height=23, width=200)
-        self.lblHumExterneVal.configure(text="---")
-        self.lblHumExterneVal.configure(justify='left')
-        self.lblHumExterneVal.configure(font=("Courrier New", 20))
-        self.labels.append(self.lblHumExterneVal)
-
-        self.lblHumExterneMin = tk.Label(self.root, anchor="w")
-        self.lblHumExterneMin.place(relx=0.42, rely=0.55, height=23, width=200)
-        self.lblHumExterneMin.configure(text="---")
-        self.lblHumExterneMin.configure(justify='left')
-        self.lblHumExterneMin.configure(font=("Courrier New", 20))
-
-        self.lblHumExterneMax = tk.Label(self.root, anchor="w")
-        self.lblHumExterneMax.place(relx=0.52, rely=0.55, height=23, width=200)
-        self.lblHumExterneMax.configure(text="---")
-        self.lblHumExterneMax.configure(justify='left')
-        self.lblHumExterneMax.configure(font=("Courrier New", 20))
-
-
-        self.txtHumExterneAlmMin = tk.Entry(self.root, bg="lightgrey")
-        self.txtHumExterneAlmMin.place(relx=0.62, rely=0.55, height=27, width=80)
-        self.txtHumExterneAlmMin.insert(0, "0")
-        self.txtHumExterneAlmMin.configure(justify='left')
-        self.txtHumExterneAlmMin.configure(font=("Courrier New", 20))
-
-        self.txtHumExterneAlmMax = tk.Entry(self.root, bg="lightgrey")
-        self.txtHumExterneAlmMax.place(relx=0.73, rely=0.55, height=27, width=80)
-        self.txtHumExterneAlmMax.insert(0, "100")
-        self.txtHumExterneAlmMax.configure(justify='left')
-        self.txtHumExterneAlmMax.configure(font=("Courrier New", 20))
-
-        self.lblHumExterneAlm = tk.Label(self.root, image=self.almVerte, width=20, height=20)
-        self.lblHumExterneAlm.place(relx=0.91, rely=0.55)
-        self.lblHumExterneAlm.bind("<Button-1>", self.almHumExtClk) 
-
-        print("8-")
+        self.lstPeripheriques = pl(self.root)
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
@@ -480,18 +273,20 @@ class appDemo:
         self.alarmes[3] = False
         self.lblHumExterneAlm.configure(image=self.almVerte)
             
-    def findGuiIndex(self, DeviceEui, index_de_donnee):
-        for sensor in self.parametres['eui_clients']:
-            if sensor['eui']==DeviceEui and sensor['data_index']==index_de_donnee :
-                print(f"sensor_eui == {sensor['eui']}")
-                print(f"sensor_data_index == {sensor['data_index']}")
-                print(f"sensor_gui_index == {sensor['gui_index']}")
-                return sensor['gui_index']
+    def findGuiIndex(self, DeviceEui, type_de_donnee):
+        for client in self.parametres['eui_clients']:
+            if client['euid'] == DeviceEui:
+                #print(client['peripheriques'])
+                for capteur in client['peripheriques']:
+                    if capteur["type"] == type_de_donnee:
+                        print(capteur)
+                        return capteur['gui_index']
+                
         return -1 # Indiquer l'erreur
         
     def findDescription(self, DeviceEui, index_de_donnee):
         for sensor in self.parametres['eui_clients']:
-            if sensor['eui']==DeviceEui and sensor['data_index']==index_de_donnee :
+            if sensor['euid']==DeviceEui and sensor['data_index']==index_de_donnee :
                 print(f"sensor_eui == {sensor['eui']}")
                 print(f"sensor_data_index == {sensor['data_index']}")
                 print(f"sensor_client == {sensor['client_lorawan']}")
@@ -500,7 +295,7 @@ class appDemo:
     
     def findDestinataire(self, DeviceEui, index_de_donnee):
         for sensor in self.parametres['eui_clients']:
-            if sensor['eui']==DeviceEui and sensor['data_index']==index_de_donnee :
+            if sensor['euid']==DeviceEui and sensor['data_index']==index_de_donnee :
                 print(f"sensor_dest == {sensor['dest_email']}")
                 return sensor['dest_email'] 
         return "" # Indiquer l'erreur
@@ -526,7 +321,12 @@ class appDemo:
     def addData(self, DeviceEui, donnee, type_de_donnee):
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         print(type(DeviceEui))
-        if(self.parametres["eui_clients"][0]["eui"] == DeviceEui) and (0 == type_de_donnee):
+
+        #periIndex = self.findPeriIndex(DeviceEui, type_de_donnee)
+        guiIndex = self.findGuiIndex(DeviceEui, type_de_donnee)
+        self.lstPeripheriques.maj(guiIndex, "Capteur", str(donnee))
+
+        if(self.parametres["eui_clients"][0]["euid"] == DeviceEui) and (0 == type_de_donnee):
             self.lblTempInterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_0")
             self.lblTempInterneMin.configure(text=str(limites[0]))
@@ -534,7 +334,7 @@ class appDemo:
             if float(self.txtTempInterneAlmMin.get()) > float(donnee) or float(self.txtTempInterneAlmMax.get()) < float(donnee) :
                 self.lblTempInterneAlm.configure(image=self.almRouge)
                 self.generateAlarm(DeviceEui, donnee, type_de_donnee)
-        elif(self.parametres["eui_clients"][1]["eui"] == DeviceEui) and (1 == type_de_donnee):
+        elif(self.parametres["eui_clients"][1]["euid"] == DeviceEui) and (1 == type_de_donnee):
             self.lblHumInterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_1")
             self.lblHumInterneMin.configure(text=str(limites[0]))
@@ -542,7 +342,7 @@ class appDemo:
             if float(self.txtHumInterneAlmMin.get()) > float(donnee) or float(self.txtHumInterneAlmMax.get()) < float(donnee) :
                 self.lblHumInterneAlm.configure(image=self.almRouge)
                 self.generateAlarm(DeviceEui, donnee, type_de_donnee)
-        elif(self.parametres["eui_clients"][2]["eui"] == DeviceEui) and (0 == type_de_donnee):
+        elif(self.parametres["eui_clients"][2]["euid"] == DeviceEui) and (0 == type_de_donnee):
             self.lblTempExterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_2")
             self.lblTempExterneMin.configure(text=str(limites[0]))
@@ -550,7 +350,7 @@ class appDemo:
             if float(self.txtTempExterneAlmMin.get()) > float(donnee) or float(self.txtTempExterneAlmMax.get()) < float(donnee) :
                 self.lblTempExterneAlm.configure(image=self.almRouge)
                 self.generateAlarm(DeviceEui, donnee, type_de_donnee)
-        elif(self.parametres["eui_clients"][3]["eui"] == DeviceEui) and (1 == type_de_donnee):
+        elif(self.parametres["eui_clients"][3]["euid"] == DeviceEui) and (1 == type_de_donnee):
             self.lblHumExterneVal.configure(text=str(donnee))
             limites = self.findMiniMax("data_3")
             self.lblHumExterneMin.configure(text=str(limites[0]))
@@ -600,8 +400,8 @@ class appDemo:
                         print("*** DEUI *** ==>" + str(data_json["devEui"]))
 
                     # Ajouter la mesure du capteur dans le gui.
-                    self.addData(data_json["devEui"], data_json["data_0"], 0)
-                    self.addData(data_json["devEui"], data_json["data_1"], 1)
+                    self.addData(data_json["devEui"], data_json["data_0"], "data_0")
+                    self.addData(data_json["devEui"], data_json["data_1"], "data_1")
 
                 sad.message_recu = None
                     
