@@ -26,7 +26,6 @@ class peripheriquesListe:
             with open(confFile, 'r') as file:
                 # On récupère le contenu du fichier dans l'objet JSON "parametres"
                 self.parametres = json.load(file)
-                #print(str(self.parametres))
 
         except Exception as excpt:
             print("Erreur lors de la lecture du fichier de configuration \"" + confFile)
@@ -34,11 +33,17 @@ class peripheriquesListe:
             print("Erreur : ", excpt)
             sys.exit()
 
-        self.entete_capteurs = ["Alarme", "Capteur", " ", "Min", "Max", "Lim.-", "Lim.+"]
+        self.entete_capteurs = ["Capteur", "Valeur", "Min", "Max", "Lim.-", "Lim.+"]
 
-        self.tree = ttk.Treeview(root, columns=self.entete_capteurs, show="headings", height=10)
-        self.tree.column("# 0", anchor=tk.W, width=75)
-        self.tree.heading("# 0", text="Alarme")
+        style_entete = ttk.Style()
+        style_entete.configure("Treeview.Heading", font=(None, 20))
+
+        style_tree = ttk.Style()
+        style_tree.configure("Treeview", font=(None, 16), rowheight=30)
+
+        self.tree = ttk.Treeview(root, columns=self.entete_capteurs, show="tree headings", height=10)
+        self.tree.column("# 0", anchor=tk.W, width=30)
+        self.tree.heading("# 0", text="")
         self.tree.column("# 1", anchor=tk.W, width=300)
         self.tree.heading("# 1", text="Capteur")
         self.tree.column("# 2", anchor=tk.W, width=100)
@@ -59,37 +64,40 @@ class peripheriquesListe:
 
         # Préparer les données
         donnees = []
-        for n in range(0, len(self.parametres["eui_clients"])):
-            mesPeripheriques = self.parametres["eui_clients"][n]["peripheriques"]
+        for client in self.parametres["eui_clients"]:
+            mesPeripheriques = self.parametres["peri_clients"][client]
             for p in range (0, len(mesPeripheriques)):
                 monPeripherique = mesPeripheriques[p]
-                donnees.append((monPeripherique["label"], '- - -', '- - -', '- - -', '0', '100'))
-
+                donnees.append((monPeripherique['label'], '- - -', '- - -', '- - -', '0', '100'))
         # Insérer les données dans le widget
-        almVerte = tk.PhotoImage(file="almVerte.png")
-        almRouge = tk.PhotoImage(file="almRouge.png")
+        self.almVerte = tk.PhotoImage(file="almVerte.png")
+        self.almRouge = tk.PhotoImage(file="almRouge.png")
 
         i = 0
         capteursID=[]
-
+        
         for capteur in donnees:
-            capteursID.append(self.tree.insert('', 'end', text='', image=almVerte, tags=('cptr'+ str(i)), values=capteur))
+            print(f"capteur ==> {capteur}")
+            capteursID.append(self.tree.insert('', tk.END, text='', tags=('cptr'+ str(i)), values=capteur, image=self.almVerte))
             i+=1
     
-    
-        self.tree.tag_configure('flashtag', background='red')
+        self.tree.bind("<Double-1>", self.itemEvent)
+        self.tree.tag_configure('cptr2', background='pink')
+        self.tree.place(relx=0.05, rely=0.35, relheight=0.32, relwidth=0.877)
         self.tree['show'] = 'tree headings'
-        self.tree.pack(fill="x")
-        #self.tree.pack(side="left")
         self.tree.selection_set(capteursID[0])
         self.tree.focus(capteursID[0])
-        #self.tree.grid(row=0, column=0, sticky='nsew')
-        #root.pack(expand=True)
 
+    def itemEvent(self, event):
+        item = self.tree.selection()[0] # now you got the item on that tree
+        print (f"you clicked on item '{item}'; tag == ", self.tree.item(item,"tags"))
+        curItem = self.tree.focus()
+        print(f"Current item selected == {self.tree.item(curItem)}")
+        self.tree.tag_configure(self.tree.item(item,"tags"), background='pink')
         
     def maj(self, ligne, colonne, valeur):
 
-        row_id = self.tree.get_children()[ligne] 
+        row_id = self.tree.get_children()[ligne]
         self.tree.set(row_id, column=colonne, value=str(valeur))
 
 
