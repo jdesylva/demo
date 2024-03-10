@@ -16,7 +16,8 @@ import supportAppDemo as sad
 class mqttclient:
 
     parametres = None
-
+    lstTopics = list()
+    
     def __init__(self, confFile="demolora.json"):
         """
         Fonction appelée lors de la contruction de l'objet mqttclient. On utilise le 
@@ -32,21 +33,17 @@ class mqttclient:
                 #print(str(self.parametres))
 
             self.nom = self.parametres['nom_client_mqtt']
-            print(self.nom)
             self.adresse_serveur_mqtt = self.parametres['adresse_serveur_mqtt']
-            print(self.adresse_serveur_mqtt)
             self.port = self.parametres['port_tcp_serveur_mqtt']
-            print(self.port)
             self.keepalive = self.parametres['keepalive']
-            print(self.keepalive)
         
             # AppEUI de l'application à laquelle on se relie.
             self.appeui = self.parametres['appeui']
 
             # Informations sur nos objets
             for client in self.parametres['eui_clients'] :
-                client['topic']=f"application/{self.appeui}/device/{client['euid']}/event/up"
-                print("==>" + str(client))
+                self.lstTopics.append(f"application/{self.appeui}/device/{client}/event/up")
+                print(f"EUI client ==> {client}")
             
         except Exception as excpt:
             print("Erreur lors de la lecture du fichier de configuration \"" + confFile)
@@ -56,7 +53,7 @@ class mqttclient:
             sys.exit()
             
         # Enregistre notre script comme client MQTT, càd comme pouvant interagir avec l'interface MQTT.
-        # self.my_client = mqtt.Client(self.nom)
+        # self.my_client = mqtt.Client(self.nom) # Pour paho.mqtt versions < ???
         self.my_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, self.nom)
 
         # Enregistrer les fonctions à appeler automatiquement lors de la connexion, déconnexion et la réception d'un message
@@ -90,24 +87,27 @@ class mqttclient:
         if 0 != port:
             self.port = port
             
-        print("adresse : " + self.adresse_serveur_mqtt + "; port : " + str(self.port) + "; keepalive : " + str(self.keepalive))
+        print("Adresse du serveur : " + self.adresse_serveur_mqtt + "; port : " + str(self.port) + "; keepalive : " + str(self.keepalive))
         try:
             self.my_client.loop_start()
             self.my_client.connect(self.adresse_serveur_mqtt, self.port, self.keepalive)
             # Attends que la connexion soit établie
-            while not self.my_client.is_connected():
+            i = 0
+            while not self.my_client.is_connected() and i < 30 :
                 time.sleep(1)
                 print(".")
-            
-            for client in self.parametres['eui_clients'] :
-                print("Thème ==>" + str(client['topic']))
-                self.my_client.subscribe(client['topic'])
+                i += 1
 
+            if not self.my_client.is_connected() :
+                print("Erreur : Serveur mqtt inaccessible à l'adresse ", self.adresse_serveur_mqtt )
+                sys.exit(-1)
+            
         except Exception as e :
-            print("Serveur mqtt inacessible à l'adresse ", self.adresse_serveur_mqtt )
-            #sys.exit(0)
+            print("Erreur lors de la connexion au serveur mqtt à l'adresse ", self.adresse_serveur_mqtt )
+            print(f"Erreur : {e}")
+            sys.exit(-1)
         
-        print("MQTT client connected.")
+        print(f"MQTT client relié au serveur à l'adresse {self.adresse_serveur_mqtt} en {i} seconde(s).")
         
     def disconnect(self):
         """
@@ -123,8 +123,6 @@ class mqttclient:
         """
         Fonction appelée lorsque un message est reçu.
         """
-        #global  application
-        print("Message MQTT Recu ! ! !")
         del client, userdata
         # On prend le thème dans le paquet contenant le message.
         theme = message.topic
@@ -146,7 +144,8 @@ class mqttclient:
 
             named_tuple = time.localtime() # get struct_time
             time_string = time.strftime("%Y%m%d", named_tuple)
-
+            # On inscrit les données dans le fichier CSV
+            
             filename = "rslts" + time_string + ".csv"
 
             with open(filename, 'a', newline='') as csvwritefile:
@@ -155,24 +154,31 @@ class mqttclient:
 
                 time_string = time.strftime("%H:%M:%S", named_tuple)
 
-                for client in self.parametres["eui_clients"] :
-                    if(client["euid"] == deviceInfo["devEui"]):
-                        i = 0
-                        for peripherique in client["peripheriques"]:
-                            if i == 0:
-                                f_resultats.writerow([time_string, objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
-                            elif i == 1:
-                                f_resultats.writerow([time_string, "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
-                            elif i == 2:
-                                f_resultats.writerow([time_string, "", "", "", "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
-                            elif i == 3:
-                                f_resultats.writerow([time_string, "", "", "", "", "", "", "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
-                            elif i == 4:
-                                f_resultats.writerow([time_string, "", "", "", "", "", "", "", "", "", "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
-                            else:
-                                f_resultats.writerow([time_string, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", objet_code["data_0"], objet_code["data_1"], objet_code["BatV"]])
-                            i += 1
-                                
+                lstColonnes = sad.getColNames(self.parametres)
+                lignesFichier = list()
+                lignesFichier.append(time_string)
+                
+                # Ici on parcours la liste des noms de colonnes.
+                for nomColonne in lstColonnes:
+                    # et si la colonne appartient au périphérique associé à ce message
+                    if nomColonne.startswith(deviceInfo["devEui"]):
+                        #print(f"nomColonne : {nomColonne}")
+                        #print(f"ObjectCode : {objet_code}")
+                        #print(f"deviceInfo : {deviceInfo}")
+                        #print("- - - - - - - - - - - - - ")
+                        #print(self.parametres['peri_clients'][deviceInfo['devEui']])
+                        
+                        mType = nomColonne[len(deviceInfo["devEui"]): len(nomColonne)]
+
+                        lignesFichier.append(objet_code[mType])
+
+                    else:
+                        lignesFichier.append("")
+                        
+                        
+                f_resultats.writerow(lignesFichier)
+                #print(lignesFichier)
+
         except Exception as excpt:
             print("Erreur de décodage des données!")
             print("Erreur : ", excpt)
@@ -180,29 +186,15 @@ class mqttclient:
 
     def on_connect_cb(self, client, userdata, flags, return_code):
         """
-        Fonction appelée lors de la connexion a l'interface MQTT.
+        Fonction appelée lors de la connexion à l'interface MQTT.
         """
         del client, userdata, flags
         if return_code == 0:
             print("Connexion établie")
-            for client in self.parametres['eui_clients'] :
-                print("Thème ==>" + str(client['topic']))
-                self.my_client.subscribe(client['topic'])
+            for topic in self.lstTopics :
+                print("Thème ==>" + str(topic))
+                self.my_client.subscribe(topic)
         else:
             print("Échec de connexion")
             sys.exit(-1)
         
-# Créer et démarrer l'application graphique
-#application = demo.appDemo("1190x750+225+150", "192.168.50.200")
-#application.run()
-
-if __name__ == '__main__':
-    
-    sad.set_queue()
-        
-    mClient = mqttclient("demolora.json")
-    mClient.connect()
-
-    while(True):
-        time.sleep(0.2)
-    
