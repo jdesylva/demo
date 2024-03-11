@@ -139,11 +139,21 @@ class mqttclient:
             objet_code = message_json["object"]
             deviceInfo = message_json["deviceInfo"]
 
-            strData = "{\"devEui\":\"" + deviceInfo["devEui"] + "\", \"BatV\":\"" + str(int(objet_code["BatV"] * 100)) + "\", \"data_0\":" + objet_code["data_0"] + ", \"data_1\":" + objet_code["data_1"] + "}"
+            #strData = "{\"devEui\":\"" + deviceInfo["devEui"] + "\", \"BatV\":\"" + str(int(objet_code["BatV"] * 100)) + "\", \"data_0\":" + objet_code["data_0"] + ", \"data_1\":" + objet_code["data_1"] + "}"
+
+            strData = "{\"devEui\":\"" + deviceInfo["devEui"] 
+
+            for capteur in self.parametres["peri_clients"][deviceInfo["devEui"]]:
+                type_donnee = capteur["type"]
+                strData += f"\",\"{type_donnee}\":\"" 
+                strData += str(objet_code[type_donnee])
+            strData += "\"}"
+            
             sad.qGui.put(strData)
 
             named_tuple = time.localtime() # get struct_time
             time_string = time.strftime("%Y%m%d", named_tuple)
+            
             # On inscrit les données dans le fichier CSV
             
             filename = "rslts" + time_string + ".csv"

@@ -81,24 +81,58 @@ class peripheriquesListe:
             self.capteursID.append(self.tree.insert('', tk.END, text='', tags=('cptr'+ str(i)), values=capteur, image=self.almVerte))
             i+=1
     
-        self.tree.bind("<Double-1>", self.itemEvent)
+        self.tree.bind("<Key>", self.itemKeyEvent)
+        self.tree.bind("<Button-1>", self.itemMouseEvent)
+        self.tree.bind("<Button-3>", self.itemMouseEvent)
+        self.tree.bind("<Double-1>", self.itemMouseEvent)
         self.tree.tag_configure('cptr2', background='pink')
         self.tree.place(relx=0.05, rely=0.35, relheight=0.32, relwidth=0.877)
         self.tree['show'] = 'tree headings'
         self.tree.selection_set(self.capteursID[0])
         self.tree.focus(self.capteursID[0])
 
-    def itemEvent(self, event):
+    def itemKeyEvent(self, event):
+        print(f"Event ==> {event}")
+        if event.char == '\x1b' :
+            itemSelect = self.tree.selection()[0] # now you got the item on that tree
+            self.tree.item(itemSelect, image = self.almVerte)
+            
+    def itemMouseEvent(self, event):
+        #print(f"Event ==> {event}")
         itemSelect = self.tree.selection()[0] # now you got the item on that tree
-        print (f"you clicked on item '{itemSelect}'; tag == ", self.tree.item(itemSelect,"tags"))
+        print(f"itemselect ==> {self.tree.item(itemSelect)}")
+        if event.num == 3 :
+            itemSelect = self.tree.selection()[0] # now you got the item on that tree
+            self.tree.item(itemSelect, image = self.almVerte)
+        elif event.num == 1:
+            self.tree.item(itemSelect, image = self.almRouge)
+            
+    '''            
+        self.tree.tag_configure(self.tree.item(itemSelect,"tags"), background='pink')
         curItem = self.tree.focus()
         print(f"Current item selected == {self.tree.item(curItem)}")
         self.tree.item(itemSelect, image = self.almRouge)
         self.tree.tag_configure(self.tree.item(itemSelect,"tags"), background='pink')
-        
+        print(f"self.getLimit(curItem, \"inf\"){self.getLimit(curItem, 'inf')}")
+        print(f"self.getLimit(curItem, \"sup\"){self.getLimit(curItem, 'sup')}")
+        print(f"Event ==> {event}")
+    '''        
     def maj(self, ligne, colonne, valeur):
 
         row_id = self.tree.get_children()[ligne]
         self.tree.set(row_id, column=colonne, value=str(valeur))
 
+    def getLimit(self, un_iid, unType):
+        ''' 
+        Cette fonction retourne la limite positive ou négative de l'alarme associée au périphérique.
+        Le paramètre "un_iid" contient l'identificateur du périphérique dans la liste 
+        Le paramètre "unType" contient soit la valeur "sup" ou la valeur "inf" pour les limites
+        supérieure et inférieure respectivement.
+        '''
 
+        lesValeurs = self.tree.item(un_iid, "values")
+        if unType == "sup":
+            return lesValeurs[5]
+        elif unType == "inf":
+            return lesValeurs[4]
+        
