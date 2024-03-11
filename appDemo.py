@@ -134,7 +134,7 @@ class appDemo:
         self.Label1.configure(justify='left')
         self.Label1.configure(font=("Courrier New", 20))
         self.Label1.bind("<Button-1>", self.Label1Click) 
-        self.labels.append(self.Label1)
+        self.labels.append(self.Label1) 
 
         self.lstPeripheriques = pl(self.root)
 
@@ -225,42 +225,6 @@ class appDemo:
 
         self.lblDate.configure(text=time_string)
 
-    def almTempIntClk(self, event):
-        '''
-        Cette fonction est appellée lorsque l'utilisateur clique sur 
-        l'icône de l'alarme (l'ndicateur rouge) dans le GUI.
-        L'alarme est désactivée et l'indicateur est remis au vert.
-        '''
-        self.alarmes[0] = False
-        self.lblTempInterneAlm.configure(image=self.almVerte)
-            
-    def almHumIntClk(self, event):
-        '''
-        Cette fonction est appellée lorsque l'utilisateur clique sur 
-        l'icône de l'alarme (l'indicateur rouge) dans le GUI.
-        L'alarme est désactivée et l'indicateur est remis au vert.
-        '''
-        self.alarmes[1] = False
-        self.lblHumInterneAlm.configure(image=self.almVerte)
-            
-    def almTempExtClk(self, event):
-        '''
-        Cette fonction est appellée lorsque l'utilisateur clique sur 
-        l'icône de l'alarme (l'indicateur rouge) dans le GUI.
-        L'alarme est désactivée et l'indicateur est remis au vert.
-        '''
-        self.alarmes[2] = False
-        self.lblTempExterneAlm.configure(image=self.almVerte)
-            
-    def almHumExtClk(self, event):
-        '''
-        Cette fonction est appellée lorsque l'utilisateur clique sur 
-        l'icône de l'alarme (l'indicateur rouge) dans le GUI.
-        L'alarme est désactivée et l'indicateur est remis au vert.
-        '''
-        self.alarmes[3] = False
-        self.lblHumExterneAlm.configure(image=self.almVerte)
-            
     def findGuiIndex(self, DeviceEui, type_de_donnee):
         '''
         Cette fonction retourne l'index du périphérique défini par

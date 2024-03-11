@@ -74,26 +74,27 @@ class peripheriquesListe:
         self.almRouge = tk.PhotoImage(file="almRouge.png")
 
         i = 0
-        capteursID=[]
+        self.capteursID=[]
         
         for capteur in donnees:
             print(f"capteur ==> {capteur}")
-            capteursID.append(self.tree.insert('', tk.END, text='', tags=('cptr'+ str(i)), values=capteur, image=self.almVerte))
+            self.capteursID.append(self.tree.insert('', tk.END, text='', tags=('cptr'+ str(i)), values=capteur, image=self.almVerte))
             i+=1
     
         self.tree.bind("<Double-1>", self.itemEvent)
         self.tree.tag_configure('cptr2', background='pink')
         self.tree.place(relx=0.05, rely=0.35, relheight=0.32, relwidth=0.877)
         self.tree['show'] = 'tree headings'
-        self.tree.selection_set(capteursID[0])
-        self.tree.focus(capteursID[0])
+        self.tree.selection_set(self.capteursID[0])
+        self.tree.focus(self.capteursID[0])
 
     def itemEvent(self, event):
-        item = self.tree.selection()[0] # now you got the item on that tree
-        print (f"you clicked on item '{item}'; tag == ", self.tree.item(item,"tags"))
+        itemSelect = self.tree.selection()[0] # now you got the item on that tree
+        print (f"you clicked on item '{itemSelect}'; tag == ", self.tree.item(itemSelect,"tags"))
         curItem = self.tree.focus()
         print(f"Current item selected == {self.tree.item(curItem)}")
-        self.tree.tag_configure(self.tree.item(item,"tags"), background='pink')
+        self.tree.item(itemSelect, image = self.almRouge)
+        self.tree.tag_configure(self.tree.item(itemSelect,"tags"), background='pink')
         
     def maj(self, ligne, colonne, valeur):
 
