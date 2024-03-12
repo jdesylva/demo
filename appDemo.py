@@ -283,6 +283,13 @@ class appDemo:
         # Mettre à jour ces valeurs maximale et minimale dans la liste.
         self.lstPeripheriques.maj(guiIndex, "Min", str(limites[0]))
         self.lstPeripheriques.maj(guiIndex, "Max", str(limites[1]))
+
+        # Vérifier les limites d'alarmes
+        if float(donnee) > float(self.lstPeripheriques.getLimit(guiIndex, "sup")) or \
+               float(donnee) < float(self.lstPeripheriques.getLimit(guiIndex, "inf")) :
+            self.lstPeripheriques.changeImage(guiIndex, self.almRougre)
+            generateAlarm(DeviceEui, donnee, type_de_donnee)
+
         # Mettre à jour l'heure de la derniere lecture dans le GUI
         self.updateTime()
             

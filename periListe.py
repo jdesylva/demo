@@ -84,13 +84,52 @@ class peripheriquesListe:
         self.tree.bind("<Key>", self.itemKeyEvent)
         self.tree.bind("<Button-1>", self.itemMouseEvent)
         self.tree.bind("<Button-3>", self.itemMouseEvent)
-        self.tree.bind("<Double-1>", self.itemMouseEvent)
+        self.tree.bind("<Double-1>", self.editCell)
         self.tree.tag_configure('cptr2', background='pink')
         self.tree.place(relx=0.05, rely=0.35, relheight=0.32, relwidth=0.877)
         self.tree['show'] = 'tree headings'
         self.tree.selection_set(self.capteursID[0])
         self.tree.focus(self.capteursID[0])
 
+    def editCell(self, event):
+
+        item = self.tree.identify('item', event.x, event.y)
+        column = self.tree.identify_column(event.x)
+        print(f"item == {item}")
+        print(f"column == {column}")
+
+        if item and column:
+            values = self.tree.item(item, 'values')
+            print(f"values == {values}")
+            if values:
+                row = values[0]
+                text = self.tree.item(item, 'text')
+                self.entry = tk.Entry(self.tree, width=8)
+                self.entry.insert(0, text)
+                print(f"text == {text}")
+                print(f"row == {text}")
+
+                self.entry.place(x=event.x, y=event.y, anchor='w')
+                self.entry.focus_set()
+                self.entry.bind('<FocusOut>', lambda e: self.update_cell(item, self.entry.get(), column))
+                self.entry.bind('<Return>', lambda e: self.update_cell(item, self.entry.get(), column))
+
+    def update_cell(self, item, new_text, column):
+        print(f"new_text == {new_text}")
+        #self.tree.item(item, text=new_text)
+        val = self.tree.item(item)
+        print(f"val == {val}")
+        print(f"column == {column}")
+        val_list = val['values']
+        print(f"val_list == {val_list}")
+        val_list[int(column[1])-1] = new_text
+        self.tree.item(item, values=val_list)
+        self.tree.update()
+        self.entry.destroy()
+
+        #self.tree.unbind('<Double-1>')
+        #self.tree.bind('<Double-1>', self.editCell)
+    
     def itemKeyEvent(self, event):
         print(f"Event ==> {event}")
         if event.char == '\x1b' :
@@ -117,12 +156,16 @@ class peripheriquesListe:
         print(f"self.getLimit(curItem, \"sup\"){self.getLimit(curItem, 'sup')}")
         print(f"Event ==> {event}")
     '''        
-    def maj(self, ligne, colonne, valeur):
+    def changeImage(guiIndex, uneImage):
+        row_id = self.tree.get_children()[guiIndex]
+        self.tree.item(guiIndex, image = uneImage)
+        
+    def maj(self, guiIndex, colonne, valeur):
 
-        row_id = self.tree.get_children()[ligne]
+        row_id = self.tree.get_children()[guiIndex]
         self.tree.set(row_id, column=colonne, value=str(valeur))
 
-    def getLimit(self, un_iid, unType):
+    def getLimit(self, ligne, unType):
         ''' 
         Cette fonction retourne la limite positive ou négative de l'alarme associée au périphérique.
         Le paramètre "un_iid" contient l'identificateur du périphérique dans la liste 
@@ -130,7 +173,9 @@ class peripheriquesListe:
         supérieure et inférieure respectivement.
         '''
 
-        lesValeurs = self.tree.item(un_iid, "values")
+        row_id = self.tree.get_children()[ligne]
+        
+        lesValeurs = self.tree.item(row_id, "values")
         if unType == "sup":
             return lesValeurs[5]
         elif unType == "inf":
