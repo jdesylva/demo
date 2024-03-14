@@ -4,8 +4,8 @@
     "port_tcp_serveur_mqtt":1883,
     "keepalive":1000,
     "appeui":"b750d774-16b6-4fe8-8eb0-21ea91ff3481",
-    "email_sender":"dlabsys@gmail.com",
-    "app_password":"xchkpstnralyurgk",
+    "email_sender":"???????@gmail.com",
+    "app_password":"???????",
     "debug" : false,
     "eui_clients" :
     [
