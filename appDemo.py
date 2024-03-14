@@ -256,16 +256,20 @@ class appDemo:
         mDestinataire = self.findDestinataire(DeviceEui, type_de_donnee)
 
         if self.lstPeripheriques.alarmes[mGuiIndex] == False:
-            self.lstPeripheriques.alarmes[mGuiIndex] = True
             
+            self.lstPeripheriques.alarmes[mGuiIndex] = True
+            print(f"Alarmes == {self.lstPeripheriques.alarmes}")
+
             sujet = "Alerte DemoLoRa ! ! !"
             msg = f"Le capteur {mDescription} a atteint la valeur {donnee}. Voulez-vous envoyer le courriel d'alarme à {mDestinataire} ?"
             if True == sad.debug:
                 print(msg)
             if True == messagebox.askyesno(sujet, msg):
                 msg = f"Le capteur {mDescription} a atteint la valeur {donnee}."
-                sendemail.send_email(sujet, msg, self.email_sender, mDestinataire, self.app_password)
-        
+                try:
+                    sendemail.send_email(sujet, msg, self.email_sender, mDestinataire, self.app_password)
+                except:
+                    messagebox.showerror(title="Erreur d'autentification", message="L'adresse courriel ou le mot de passe n'est pas accepté par le serveur courriel. Vérifier la configuration de ces paramètres dans le fichier de configuration de l'application (généralement nommé 'demolora.json').")
     def addData(self, DeviceEui, donnee, type_de_donnee):
         # Récupérer le numéro de la ligne associée à cette donnee dans la liste
         guiIndex = self.findGuiIndex(DeviceEui, type_de_donnee)
