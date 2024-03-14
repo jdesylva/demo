@@ -26,10 +26,7 @@ class appDemo:
     adresseIP = None
     port = None
     labels = list()
-    alarmes = [False, False, False, False]
 
-    
-    
     def __init__(self, geo="1000x700+225+150", confFile="demolora.json"):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
@@ -240,35 +237,31 @@ class appDemo:
                 
         return -1 # Indiquer l'erreur
         
-    def findDescription(self, DeviceEui, index_de_donnee):
-        for sensor in self.parametres['eui_clients']:
-            if sensor['euid']==DeviceEui and sensor['data_index']==index_de_donnee :
-                print(f"sensor_eui == {sensor['eui']}")
-                print(f"sensor_data_index == {sensor['data_index']}")
-                print(f"sensor_client == {sensor['client_lorawan']}")
-                return sensor['client_lorawan']
+    def findDescription(self, DeviceEui, type_de_donnee):
+        for sensor in self.parametres['peri_clients'][DeviceEui]:
+            if sensor['type'] == type_de_donnee :
+                return sensor['label']
         return "client inconnu" # Indiquer l'erreur
     
-    def findDestinataire(self, DeviceEui, index_de_donnee):
-        for sensor in self.parametres['eui_clients']:
-            if sensor['euid']==DeviceEui and sensor['data_index']==index_de_donnee :
-                print(f"sensor_dest == {sensor['dest_email']}")
-                return sensor['dest_email'] 
-        return "" # Indiquer l'erreur
+    def findDestinataire(self, DeviceEui, type_de_donnee):
+        for sensor in self.parametres['peri_clients'][DeviceEui]:
+            if sensor['type'] == type_de_donnee :
+                return sensor['dest_email']
+        return "client inconnu" # Indiquer l'erreur
     
     def generateAlarm(self, DeviceEui, donnee, type_de_donnee):
 
         mGuiIndex = self.findGuiIndex(DeviceEui, type_de_donnee)
         mDescription = self.findDescription(DeviceEui, type_de_donnee)
-
         mDestinataire = self.findDestinataire(DeviceEui, type_de_donnee)
 
-        if self.alarmes[mGuiIndex] == False:
-            self.alarmes[mGuiIndex] = True
+        if self.lstPeripheriques.alarmes[mGuiIndex] == False:
+            self.lstPeripheriques.alarmes[mGuiIndex] = True
             
             sujet = "Alerte DemoLoRa ! ! !"
             msg = f"Le capteur {mDescription} a atteint la valeur {donnee}. Voulez-vous envoyer le courriel d'alarme à {mDestinataire} ?"
-
+            if True == sad.debug:
+                print(msg)
             if True == messagebox.askyesno(sujet, msg):
                 msg = f"Le capteur {mDescription} a atteint la valeur {donnee}."
                 sendemail.send_email(sujet, msg, self.email_sender, mDestinataire, self.app_password)
@@ -287,8 +280,8 @@ class appDemo:
         # Vérifier les limites d'alarmes
         if float(donnee) > float(self.lstPeripheriques.getLimit(guiIndex, "sup")) or \
                float(donnee) < float(self.lstPeripheriques.getLimit(guiIndex, "inf")) :
-            self.lstPeripheriques.changeImage(guiIndex, self.almRougre)
-            generateAlarm(DeviceEui, donnee, type_de_donnee)
+            self.lstPeripheriques.changeImage(guiIndex, self.almRouge)
+            self.generateAlarm(DeviceEui, donnee, type_de_donnee)
 
         # Mettre à jour l'heure de la derniere lecture dans le GUI
         self.updateTime()
@@ -316,8 +309,10 @@ class appDemo:
                         print("*** DEUI *** ==>" + str(data_json["devEui"]))
 
                     # Ajouter la mesure du capteur dans le gui.
-                    self.addData(data_json["devEui"], data_json["data_0"], "data_0")
-                    self.addData(data_json["devEui"], data_json["data_1"], "data_1")
+                    devEui = data_json["devEui"]
+                    for sensor in self.parametres['peri_clients'][devEui]:
+                        mType = sensor['type']
+                        self.addData(data_json["devEui"], data_json[mType], mType)
 
                 sad.message_recu = None
                     

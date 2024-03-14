@@ -5,7 +5,9 @@ import socket
 #
 import tkinter as tk
 from tkinter import ttk, PhotoImage
+import tkinter.messagebox as messagebox
 #
+import supportAppDemo as sad
 #
 confFile="demolora.json"
 #
@@ -13,6 +15,7 @@ confFile="demolora.json"
 class peripheriquesListe:
 
     parametres = None
+    alarmes = list()
 
     def __init__(self, root, confFile="demolora.json"):
         """
@@ -68,7 +71,7 @@ class peripheriquesListe:
             mesPeripheriques = self.parametres["peri_clients"][client]
             for p in range (0, len(mesPeripheriques)):
                 monPeripherique = mesPeripheriques[p]
-                donnees.append((monPeripherique['label'], '- - -', '- - -', '- - -', '0', '100'))
+                donnees.append((monPeripherique['label'], '- - -', '- - -', '- - -', monPeripherique['liminf'], monPeripherique['limsup']))
         # Insérer les données dans le widget
         self.almVerte = tk.PhotoImage(file="almVerte.png")
         self.almRouge = tk.PhotoImage(file="almRouge.png")
@@ -78,14 +81,17 @@ class peripheriquesListe:
         
         for capteur in donnees:
             print(f"capteur ==> {capteur}")
-            self.capteursID.append(self.tree.insert('', tk.END, text='', tags=('cptr'+ str(i)), values=capteur, image=self.almVerte))
+            self.capteursID.append(self.tree.insert('', tk.END, text='', tags=(str(i)), values=capteur, image=self.almVerte))
             i+=1
+            self.alarmes.append(False)
     
-        self.tree.bind("<Key>", self.itemKeyEvent)
+        print(f"Alarmes == {self.alarmes}")
+        
+        #self.tree.bind("<Key>", self.itemKeyEvent)
         self.tree.bind("<Button-1>", self.itemMouseEvent)
         self.tree.bind("<Button-3>", self.itemMouseEvent)
         self.tree.bind("<Double-1>", self.editCell)
-        self.tree.tag_configure('cptr2', background='pink')
+
         self.tree.place(relx=0.05, rely=0.35, relheight=0.32, relwidth=0.877)
         self.tree['show'] = 'tree headings'
         self.tree.selection_set(self.capteursID[0])
@@ -95,19 +101,14 @@ class peripheriquesListe:
 
         item = self.tree.identify('item', event.x, event.y)
         column = self.tree.identify_column(event.x)
-        print(f"item == {item}")
-        print(f"column == {column}")
 
         if item and column:
             values = self.tree.item(item, 'values')
-            print(f"values == {values}")
             if values:
                 row = values[0]
                 text = self.tree.item(item, 'text')
                 self.entry = tk.Entry(self.tree, width=8)
                 self.entry.insert(0, text)
-                print(f"text == {text}")
-                print(f"row == {text}")
 
                 self.entry.place(x=event.x, y=event.y, anchor='w')
                 self.entry.focus_set()
@@ -115,53 +116,52 @@ class peripheriquesListe:
                 self.entry.bind('<Return>', lambda e: self.update_cell(item, self.entry.get(), column))
 
     def update_cell(self, item, new_text, column):
-        print(f"new_text == {new_text}")
-        #self.tree.item(item, text=new_text)
         val = self.tree.item(item)
-        print(f"val == {val}")
-        print(f"column == {column}")
         val_list = val['values']
-        print(f"val_list == {val_list}")
         val_list[int(column[1])-1] = new_text
         self.tree.item(item, values=val_list)
         self.tree.update()
         self.entry.destroy()
 
-        #self.tree.unbind('<Double-1>')
-        #self.tree.bind('<Double-1>', self.editCell)
-    
     def itemKeyEvent(self, event):
-        print(f"Event ==> {event}")
+        if sad.debug :
+            print(f"Event ==> {event}")
         if event.char == '\x1b' :
-            itemSelect = self.tree.selection()[0] # now you got the item on that tree
+            itemSelect = self.tree.selection()[0]
             self.tree.item(itemSelect, image = self.almVerte)
             
     def itemMouseEvent(self, event):
-        #print(f"Event ==> {event}")
-        itemSelect = self.tree.selection()[0] # now you got the item on that tree
-        print(f"itemselect ==> {self.tree.item(itemSelect)}")
+
+        itemSelect = self.tree.selection()[0]
+        if sad.debug:
+            print(f"Event ==> {event}")
+            print(f"itemselect ==> {self.tree.item(itemSelect)}")
+        # Si le bouton droit de la sourie est activé
         if event.num == 3 :
-            itemSelect = self.tree.selection()[0] # now you got the item on that tree
-            self.tree.item(itemSelect, image = self.almVerte)
+            if True == messagebox.askyesno("Alarme", "Voulez-vous effacer l'alarme ?"):
+                # Remettre l'icône de la couleur verte.
+                self.tree.item(itemSelect, image = self.almVerte)
+                # Annuler l'alarme
+                guiIndex = self.tree.item(itemSelect)['tags'][0]
+                self.alarmes[guiIndex] = False
+        # Si le bouton gauche de la sourie est activé
         elif event.num == 1:
-            self.tree.item(itemSelect, image = self.almRouge)
+            pass # Rien à faire ici pour l'instant ...
+            #self.tree.item(itemSelect, image = self.almRouge)
             
-    '''            
-        self.tree.tag_configure(self.tree.item(itemSelect,"tags"), background='pink')
-        curItem = self.tree.focus()
-        print(f"Current item selected == {self.tree.item(curItem)}")
-        self.tree.item(itemSelect, image = self.almRouge)
-        self.tree.tag_configure(self.tree.item(itemSelect,"tags"), background='pink')
-        print(f"self.getLimit(curItem, \"inf\"){self.getLimit(curItem, 'inf')}")
-        print(f"self.getLimit(curItem, \"sup\"){self.getLimit(curItem, 'sup')}")
-        print(f"Event ==> {event}")
-    '''        
-    def changeImage(guiIndex, uneImage):
+    def changeImage(self, guiIndex, uneImage):
+        '''
+        Cette fonction change l'image de la ligne identifiée par le paramètre "guiIndex"
+        par celle identifiée par le paramètre "uneImage". 
+        '''
         row_id = self.tree.get_children()[guiIndex]
-        self.tree.item(guiIndex, image = uneImage)
+        self.tree.item(row_id, image = uneImage)
         
     def maj(self, guiIndex, colonne, valeur):
-
+        '''
+        Cette fonction change la valeur de la cellule correspondant à la ligne "guiIndex"
+        et la colonne "colonne" avec la chaîne reçue en paramètre "valeur". 
+        '''
         row_id = self.tree.get_children()[guiIndex]
         self.tree.set(row_id, column=colonne, value=str(valeur))
 
