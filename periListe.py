@@ -102,7 +102,7 @@ class peripheriquesListe:
         item = self.tree.identify('item', event.x, event.y)
         column = self.tree.identify_column(event.x)
 
-        if item and column:
+        if item and (column == "#5" or column == "#6") :
             values = self.tree.item(item, 'values')
             if values:
                 row = values[0]
