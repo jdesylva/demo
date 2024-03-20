@@ -130,6 +130,7 @@ class mqttclient:
         message = message.payload
         # On décode le message UTF8.
         message_decode = message.decode("utf-8")
+
         # On décode le message au format JSON.
         message_json = json.loads(message_decode)
         # On conserve le dernier message dans la variable globale.
@@ -138,8 +139,7 @@ class mqttclient:
         try :  # On décode le message pour inscrire les données dans le gui et le fichier de résultats
             objet_code = message_json["object"]
             deviceInfo = message_json["deviceInfo"]
-
-            #strData = "{\"devEui\":\"" + deviceInfo["devEui"] + "\", \"BatV\":\"" + str(int(objet_code["BatV"] * 100)) + "\", \"data_0\":" + objet_code["data_0"] + ", \"data_1\":" + objet_code["data_1"] + "}"
+            rxInfo = message_json["rxInfo"]
 
             strData = "{\"devEui\":\"" + deviceInfo["devEui"] 
 
@@ -184,9 +184,9 @@ class mqttclient:
                     elif nomColonne == "Heure":
                         lignesFichier.append(time_string)
                     elif nomColonne == "RSSI":
-                        lignesFichier.append(objet_code['RxInfo'][0]['rssi'])
+                        lignesFichier.append(rxInfo[0]['rssi'])
                     elif nomColonne == "SNR":
-                        lignesFichier.append(objet_code['RxInfo'][0]['snr'])
+                        lignesFichier.append(rxInfo[0]['snr'])
                     else:
                         lignesFichier.append("")
                         
