@@ -135,7 +135,7 @@ class mqttclient:
         # On conserve le dernier message dans la variable globale.
         sad.message_recu = message_json
 
-        try :  # On décode le message 
+        try :  # On décode le message pour inscrire les données dans le gui et le fichier de résultats
             objet_code = message_json["object"]
             deviceInfo = message_json["deviceInfo"]
 
@@ -166,7 +166,6 @@ class mqttclient:
 
                 lstColonnes = sad.getColNames(self.parametres)
                 lignesFichier = list()
-                lignesFichier.append(time_string)
                 
                 # Ici on parcours la liste des noms de colonnes.
                 for nomColonne in lstColonnes:
@@ -182,13 +181,17 @@ class mqttclient:
 
                         lignesFichier.append(objet_code[mType])
 
+                    elif nomColonne == "Heure":
+                        lignesFichier.append(time_string)
+                    elif nomColonne == "RSSI":
+                        lignesFichier.append(objet_code['RxInfo'][0]['rssi'])
+                    elif nomColonne == "SNR":
+                        lignesFichier.append(objet_code['RxInfo'][0]['snr'])
                     else:
                         lignesFichier.append("")
                         
-                        
                 f_resultats.writerow(lignesFichier)
-                #print(lignesFichier)
-
+                
         except Exception as excpt:
             print("Erreur de décodage des données!")
             print("Erreur : ", excpt)

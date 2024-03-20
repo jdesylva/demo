@@ -20,9 +20,12 @@ def getColNames(params):
 
     colNames = []
 
+    colNames.append("Heure")
     for client in params['eui_clients']:
         for peripherique in params['peri_clients'][client]:
             nom = client + peripherique['type']
             colNames.append(nom)
+    colNames.append("RSSI")
+    colNames.append("SNR")
                 
     return colNames

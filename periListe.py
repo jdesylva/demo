@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-import time, sys, os, csv, json
+import time, sys, os, json
 import socket
 #
 import tkinter as tk
